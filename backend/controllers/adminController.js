@@ -17,14 +17,12 @@ const addDoctor = async (req, res) => {
       available,
       fees,
       adress,
-      date,
-      slots_booked,
     } = req.body;
     const imageFile = req.file;
     if (!imageFile) {
       return res.status(400).json({ message: "Image file is required" });
     }
-    // checking for all data to add
+
     if (
       !name ||
       !email ||
@@ -47,7 +45,6 @@ const addDoctor = async (req, res) => {
     }
     const salt = await bycrypt.genSalt(10);
     const hashedPassword = await bycrypt.hash(password, salt);
-    // Uploading image to cloudinary
     const imageUpload = await cloudinary.uploader.upload(imageFile.path, {
       resource_type: "image",
     });
@@ -65,8 +62,7 @@ const addDoctor = async (req, res) => {
       fees,
       adress: JSON.parse(adress),
       date: Date.now(),
-      slots_booked,
-      image: imageUrl, // Store the image URL
+      image: imageUrl,
     };
 
     const newDoctor = new doctorModel(doctorData);
@@ -86,7 +82,7 @@ const addDoctor = async (req, res) => {
   }
 };
 
-const aminLogin = async (req, res) => {
+const adminLogin = async (req, res) => {
   try {
     const { email, password } = req.body;
     if (!email || !password) {
@@ -94,29 +90,27 @@ const aminLogin = async (req, res) => {
         .status(400)
         .json({ message: "Email and password are required" });
     }
+
     if (
       email === process.env.ADMIN_EMAIL &&
       password === process.env.ADMIN_PASSWORD
     ) {
-      const token = jwt.sign(email + password, process.env.JWT_SECRET);
-      res.json({
+      const token = jwt.sign({ email }, process.env.JWT_SECRET, {
+        expiresIn: "1d",
+      });
+      return res.json({
         success: true,
         message: "Admin login successful",
-        token: token,
-      });
-    } else {
-      return res.status(401).json({
-        success: false,
-        message: "Invalid email or password",
+        token,
       });
     }
+
+    res
+      .status(401)
+      .json({ success: false, message: "Invalid email or password" });
   } catch (error) {
     console.error("Error during admin login:", error);
-    res.status(500).json({
-      success: false,
-      message: "Internal server error",
-      error: error.message,
-    });
+    res.status(500).json({ success: false, message: "Internal server error" });
   }
 };
-export { addDoctor, aminLogin };
+export { addDoctor, adminLogin };

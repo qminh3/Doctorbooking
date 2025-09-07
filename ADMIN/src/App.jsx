@@ -1,8 +1,7 @@
-// import "./App.css";
 import React, { useContext } from "react";
 import { Route, Routes } from "react-router-dom";
 import Login from "./pages/Login";
-import { ToastContainer, toast } from "react-toastify";
+import { ToastContainer } from "react-toastify";
 import { Admincontext } from "./context/AdminContext";
 import Navbar from "./components/Navbar";
 import Slidebar from "./components/Slidebar";
