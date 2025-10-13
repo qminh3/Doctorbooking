@@ -16,7 +16,7 @@ const addDoctor = async (req, res) => {
       about,
       available,
       fees,
-      adress,
+      address,
     } = req.body;
     const imageFile = req.file;
     if (!imageFile) {
@@ -31,7 +31,7 @@ const addDoctor = async (req, res) => {
       !degree ||
       !experience ||
       !fees ||
-      !adress
+      !address
     ) {
       return res.status(400).json({ message: "Missing data" });
     }
@@ -60,7 +60,7 @@ const addDoctor = async (req, res) => {
       about,
       available,
       fees,
-      adress: JSON.parse(adress),
+      address: JSON.parse(address),
       date: Date.now(),
       image: imageUrl,
     };
@@ -98,6 +98,7 @@ const adminLogin = async (req, res) => {
       const token = jwt.sign({ email }, process.env.JWT_SECRET, {
         expiresIn: "1d",
       });
+      console.log("Admin login successful:", token);
       return res.json({
         success: true,
         message: "Admin login successful",
@@ -113,4 +114,14 @@ const adminLogin = async (req, res) => {
     res.status(500).json({ success: false, message: "Internal server error" });
   }
 };
-export { addDoctor, adminLogin };
+
+const allDoctors = async (req, res) => {
+  try {
+    const doctors = await doctorModel.find({}).select("-password");
+    res.status(200).json({ success: true, doctors });
+  } catch (error) {
+    console.error("Error fetching doctors:", error);
+    res.status(500).json({ success: false, message: "Internal server error" });
+  }
+};
+export { addDoctor, adminLogin, allDoctors };
