@@ -3,6 +3,8 @@ import bycrypt from "bcrypt";
 import { v2 as cloudinary } from "cloudinary";
 import doctorModel from "../models/doctorModel.js";
 import jwt from "jsonwebtoken";
+import appointmentModel from "../models/appointmentModel.js";
+import userrModel from "../models/userModel.js";
 
 const addDoctor = async (req, res) => {
   try {
@@ -124,4 +126,69 @@ const allDoctors = async (req, res) => {
     res.status(500).json({ success: false, message: "Internal server error" });
   }
 };
-export { addDoctor, adminLogin, allDoctors };
+
+// get all appointment list
+const appointmentAdmin = async (req, res) => {
+  try {
+    const appointments = await appointmentModel.find({});
+    res.json({ success: true, appointments });
+  } catch (error) {
+    console.error("Error fetching appointments:", error);
+    res.status(500).json({ success: false, message: "Internal server error" });
+  }
+};
+
+const admincancelAppointment = async (req, res) => {
+  try {
+    const { appointmentId } = req.body;
+    const appointmentData = await appointmentModel.findById(appointmentId);
+
+    await appointmentModel.findByIdAndUpdate(appointmentId, {
+      cancelled: true,
+    });
+
+    const { docId, slotDate, slotTime } = appointmentData;
+    const doctorData = await doctorModel.findById(docId);
+
+    let slots_booked = doctorData.slots_booked;
+    slots_booked[slotDate] = slots_booked[slotDate].filter(
+      (e) => e !== slotTime
+    );
+    await doctorModel.findByIdAndUpdate(docId, { slots_booked });
+    return res.json({
+      success: true,
+      message: "Appointment cancelled successfully",
+    });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+const adminDashboard = async (req, res) => {
+  try {
+    const doctors = await doctorModel.find({});
+    const users = await userrModel.find({});
+    const appointments = await appointmentModel.find({});
+
+    const dashBoardData = {
+      doctors: doctors.length,
+      appointments: appointments.length,
+      patients: users.length,
+      lastestAppointments: appointments.reverse().slice(0, 5),
+    };
+    return res.json({ success: true, dashBoardData });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+export {
+  addDoctor,
+  adminLogin,
+  allDoctors,
+  appointmentAdmin,
+  admincancelAppointment,
+  adminDashboard,
+};

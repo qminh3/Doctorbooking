@@ -8,6 +8,9 @@ const AdminContextProvider = (props) => {
     localStorage.getItem("aToken") ? localStorage.getItem("aToken") : ""
   );
   const [doctors, setDoctors] = useState([]);
+  const [appointments, setAppointments] = useState([]);
+  const [dashboardData, setDashboardData] = useState(false);
+
   const backendUrl =
     import.meta.env.VITE_BACKEND_URL || "http://localhost:4000";
 
@@ -47,6 +50,56 @@ const AdminContextProvider = (props) => {
       console.error("Error changing availability:", error);
     }
   };
+
+  const getAllAppointments = async () => {
+    try {
+      const { data } = await axios.get(
+        backendUrl + "/api/admin/all-appointments",
+        { headers: { aToken } }
+      );
+      if (data.success) {
+        setAppointments(data.appointments);
+        console.log("Fetched appointments:", data.appointments);
+      } else {
+        toast.error(data.message);
+        console.error("Failed to fetch appointments:", data.message);
+      }
+    } catch (error) {
+      console.error("Error fetching appointments:", error);
+    }
+  };
+  const cancelAppointment = async (appointmentId) => {
+    try {
+      const { data } = await axios.post(
+        backendUrl + "/api/admin/cancel-appointment",
+        { appointmentId },
+        { headers: { aToken } }
+      );
+      if (data.success) {
+        toast.success(data.message);
+        getAllAppointments();
+      } else {
+        toast.error(data.message);
+        console.error("Failed to cancel appointment:", data.message);
+      }
+    } catch (error) {
+      console.error("Error cancelling appointment:", error);
+    }
+  };
+
+  const getDashboard = async () => {
+    try {
+      const { data } = await axios.get(backendUrl + "/api/admin/dashboard", {
+        headers: { aToken },
+      });
+      if (data.success) {
+        setDashboardData(data.dashBoardData);
+        console.log("Fetched dashboard data:", data.dashBoardData);
+      }
+    } catch (error) {
+      console.error("Error fetching dashboard data:", error);
+    }
+  };
   const value = {
     aToken,
     setAToken,
@@ -55,6 +108,12 @@ const AdminContextProvider = (props) => {
     backendUrl,
     getAllDoctors,
     changeAvailability,
+    appointments,
+    setAppointments,
+    getAllAppointments,
+    cancelAppointment,
+    getDashboard,
+    dashboardData,
   };
 
   return (

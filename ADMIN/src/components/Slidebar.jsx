@@ -1,12 +1,14 @@
 import React, { useContext } from "react";
 import { Admincontext } from "../context/AdminContext";
+import { DoctorContext } from "../context/DoctorContext";
 import { NavLink } from "react-router-dom";
 import { assets } from "../assets/assets_admin/assets";
 
 const Sidebar = () => {
   const { aToken } = useContext(Admincontext);
+  const { dToken } = useContext(DoctorContext);
 
-  const navItems = [
+  const adminNavItems = [
     {
       to: "/admin-dashboard",
       icon: assets.home_icon,
@@ -29,36 +31,58 @@ const Sidebar = () => {
     },
   ];
 
+  const doctorNavItems = [
+    {
+      to: "/doctor-dashboard",
+      icon: assets.home_icon,
+      label: "Dashboard",
+    },
+    {
+      to: "/doctor-appointment",
+      icon: assets.appointment_icon,
+      label: "Appointments",
+    },
+    {
+      to: "/doctor-profile",
+      icon: assets.people_icon,
+      label: "Profile",
+    },
+  ];
+
+  const navItems = aToken ? adminNavItems : doctorNavItems;
+
   return (
     <div className="min-h-screen bg-white border-r border-gray-200 shadow-sm">
-      {aToken ? (
-        <nav className="pt-6">
-          <ul className="space-y-1">
-            {navItems.map((item) => (
-              <li key={item.to}>
-                <NavLink
-                  to={item.to}
-                  className={({ isActive }) =>
-                    `flex items-center gap-4 py-4 px-6 mx-2 rounded-lg transition-all duration-200 ease-in-out text-gray-600 hover:text-gray-900 hover:bg-gray-50 ${
-                      isActive
-                        ? "bg-blue-50 text-blue-700 border-r-4 border-blue-600 shadow-sm"
-                        : ""
-                    }`
-                  }
-                >
-                  <img
-                    src={item.icon}
-                    alt={`${item.label} icon`}
-                    className="w-5 h-5 flex-shrink-0"
-                  />
-                  <span className="font-medium text-sm md:text-base">
-                    {item.label}
-                  </span>
-                </NavLink>
-              </li>
-            ))}
-          </ul>
-        </nav>
+      {aToken || dToken ? (
+        <div>
+          <nav className="pt-6">
+            <ul className="space-y-2 px-3">
+              {navItems.map((item) => (
+                <li key={item.to}>
+                  <NavLink
+                    to={item.to}
+                    className={({ isActive }) =>
+                      `flex items-center gap-4 py-4 px-10 rounded-lg transition-all duration-200 ease-in-out text-gray-600 hover:text-gray-900 hover:bg-gray-50 ${
+                        isActive
+                          ? aToken
+                            ? "bg-blue-50 text-blue-700 border-l-4 border-blue-600 shadow-sm"
+                            : "bg-green-50 text-green-700 border-l-4 border-green-600 shadow-sm"
+                          : ""
+                      }`
+                    }
+                  >
+                    <img
+                      src={item.icon}
+                      alt={`${item.label} icon`}
+                      className="w-5 h-5 flex-shrink-0"
+                    />
+                    <span className="font-medium text-sm">{item.label}</span>
+                  </NavLink>
+                </li>
+              ))}
+            </ul>
+          </nav>
+        </div>
       ) : (
         <div className="flex flex-col items-center justify-center h-64">
           <div className="text-center p-6">
@@ -78,10 +102,10 @@ const Sidebar = () => {
               </svg>
             </div>
             <h3 className="text-lg font-semibold text-gray-900 mb-2">
-              Admin Access Required
+              Access Required
             </h3>
             <p className="text-gray-500 text-sm">
-              Please log in to access the admin panel
+              Please log in to access the panel
             </p>
           </div>
         </div>

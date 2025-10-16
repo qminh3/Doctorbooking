@@ -70,11 +70,11 @@ const MyProfile = () => {
             <div className="text-center">
               {isEdit ? (
                 <label htmlFor="image" className="cursor-pointer group">
-                  <div className="relative inline-block">
+                  <div className="relative inline-block cursor-pointer">
                     <img
                       src={image ? URL.createObjectURL(image) : userData.image}
                       alt="Profile"
-                      className="w-32 h-32 rounded-full object-cover border-4 border-white shadow-lg group-hover:shadow-xl transition-shadow duration-300"
+                      className="w-36 h-36 rounded-full object-cover border-4 border-white shadow-lg group-hover:shadow-xl transition-shadow duration-300"
                     />
                     <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 rounded-full transition-all duration-300 flex items-center justify-center">
                       <img

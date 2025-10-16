@@ -65,7 +65,9 @@ const AppContextProvider = (props) => {
     getDoctorsData();
   }, []);
   useEffect(() => {
-    if (token) loadUserProfile();
+    if (token) {
+      loadUserProfile();
+    }
     setUserData(false);
   }, [token]);
 

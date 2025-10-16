@@ -5,6 +5,7 @@ import userrModel from "../models/userModel.js";
 import { v2 as cloudinary } from "cloudinary";
 import doctorModel from "../models/doctorModel.js";
 import appointmentModel from "../models/appointmentModel.js";
+import Razorpay from "razorpay";
 
 const userRegister = async (req, res) => {
   try {
@@ -113,12 +114,14 @@ const userUpdateProfile = async (req, res) => {
   }
 };
 
-// api to book appointment
+// api để đặt lịch hẹn
 
 const bookAppointment = async (req, res) => {
   try {
     const { userId, docId, slotDate, slotTime } = req.body;
+    // lấy thông tin bác sĩ
     const docData = await doctorModel.findById(docId).select("-password");
+    // nếu bác sĩ không tồn tại
     if (!docData.available) {
       return res.json({
         success: false,
@@ -128,7 +131,7 @@ const bookAppointment = async (req, res) => {
 
     let slots_booked = docData.slots_booked;
 
-    // Check if the slotDate already exists in slots_booked
+    // Kiểm tra slot đã được book chưa
     if (slots_booked[slotDate]) {
       if (slots_booked[slotDate].includes(slotTime)) {
         return res.json({
@@ -215,6 +218,59 @@ const cancelAppointment = async (req, res) => {
   }
 };
 
+const razorpayInstance = new Razorpay({
+  key_id: process.env.RAZORPAY_KEY_ID,
+  key_secret: process.env.RAZORPAY_KEY_SECRET,
+});
+
+// thanh toán
+const paymentComplete = async (req, res) => {
+  try {
+    const { appointmentId } = req.body;
+
+    // Tìm appointment
+    const appointmentData = await appointmentModel.findById(appointmentId);
+
+    if (!appointmentData) {
+      return res.json({
+        success: false,
+        message: "Appointment not found",
+      });
+    }
+
+    if (appointmentData.cancelled) {
+      return res.json({
+        success: false,
+        message: "Cannot pay for cancelled appointment",
+      });
+    }
+
+    if (appointmentData.payment) {
+      return res.json({
+        success: false,
+        message: "Payment already completed",
+      });
+    }
+
+    // Cập nhật trạng thái payment
+    await appointmentModel.findByIdAndUpdate(appointmentId, {
+      payment: true,
+    });
+
+    return res.json({
+      success: true,
+      message: "Payment completed successfully",
+    });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({
+      success: false,
+      message: "Internal server error",
+    });
+  }
+};
+
+// Cập nhật export
 export {
   userRegister,
   userLogin,
@@ -223,4 +279,5 @@ export {
   bookAppointment,
   listAppointments,
   cancelAppointment,
+  paymentComplete, // Thay đổi từ paymentRazorpay
 };
