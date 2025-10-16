@@ -1,5 +1,5 @@
 import React, { useContext } from "react";
-import { Route, Routes } from "react-router-dom";
+import { Route, Routes, Navigate } from "react-router-dom";
 import Login from "./pages/Login";
 import { ToastContainer } from "react-toastify";
 import { Admincontext } from "./context/AdminContext";
@@ -18,13 +18,18 @@ function App() {
       <Navbar />
       <div className="flex items-start">
         <Slidebar />
-        <Routes>
-          <Route path="/" element={<></>} />
-          <Route path="/admin-dashboard" element={<Dashboard />} />
-          <Route path="/all-appointment" element={<AllApointments />} />
-          <Route path="/add-doctor" element={<AddDoctor />} />
-          <Route path="/doctor-list" element={<DoctorList />} />
-        </Routes>
+        <main className="flex-1 p-6">
+          <Routes>
+            <Route
+              path="/"
+              element={<Navigate to="/admin-dashboard" replace />}
+            />
+            <Route path="/admin-dashboard" element={<Dashboard />} />
+            <Route path="/all-appointment" element={<AllApointments />} />
+            <Route path="/add-doctor" element={<AddDoctor />} />
+            <Route path="/doctor-list" element={<DoctorList />} />
+          </Routes>
+        </main>
       </div>
     </div>
   ) : (

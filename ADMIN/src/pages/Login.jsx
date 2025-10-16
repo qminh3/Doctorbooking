@@ -21,6 +21,7 @@ const Login = () => {
         });
         if (data.success) {
           console.log(data.token);
+          // toast.success("Login successful!");
           localStorage.setItem("aToken", data.token);
           setAToken(data.token);
         } else {

@@ -12,13 +12,12 @@ const AddDoctor = () => {
   const [experience, setExperience] = useState("1 year");
   const [fees, setFees] = useState("");
   const [speciality, setSpeciality] = useState("General physician");
-  const [education, setEducation] = useState("");
+  const [degree, setDegree] = useState("");
   const [address1, setAddress1] = useState("");
   const [address2, setAddress2] = useState("");
   const [about, setAbout] = useState("");
   const [submitting, setSubmitting] = useState(false);
 
-  // ✅ Sửa chính tả: backendUrl
   const { backendUrl, aToken } = useContext(Admincontext);
 
   const handleSubmit = async (e) => {
@@ -35,22 +34,24 @@ const AddDoctor = () => {
       setSubmitting(true);
       const formData = new FormData();
       formData.append("image", docImg);
-      formData.append("name", name.trim());
-      formData.append("email", email.trim());
+      formData.append("name", name);
+      formData.append("email", email);
       formData.append("password", password);
       formData.append("experience", experience);
       formData.append("fees", Number(fees));
       formData.append("speciality", speciality);
-      formData.append("education", education.trim());
-      formData.append("about", about.trim());
+      formData.append("degree", degree);
+      formData.append("about", about);
       formData.append(
-        "address1",
-        JSON.stringify({ line1: address1.trim(), line2: address2.trim() })
+        "address",
+        JSON.stringify({ line1: address1, line2: address2 })
       );
+      // formData.forEach((value, key) => {
+      //   console.log(`${key}: ${value}`);
+      // });
 
-      // ✅ Sửa header đúng chuẩn Authorization
       const { data } = await axios.post(
-        `${backendUrl}/api/admin/add-doctor`,
+        backendUrl + "/api/admin/add-doctor",
         formData,
         {
           headers: {
@@ -61,7 +62,6 @@ const AddDoctor = () => {
 
       if (data?.success) {
         toast.success("Doctor added successfully");
-        // reset nhanh
         setDocImg(null);
         setName("");
         setEmail("");
@@ -69,7 +69,7 @@ const AddDoctor = () => {
         setExperience("1 year");
         setFees("");
         setSpeciality("General physician");
-        setEducation("");
+        setDegree("");
         setAddress1("");
         setAddress2("");
         setAbout("");
@@ -90,20 +90,10 @@ const AddDoctor = () => {
       onSubmit={handleSubmit}
       className="mx-auto my-6 w-full max-w-5xl overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm"
     >
-      {/* Header */}
       <div className="flex items-center justify-between gap-4 border-b border-gray-100 bg-gray-50/60 px-6 py-4">
         <p className="text-lg font-semibold text-gray-800">Add Doctor</p>
-        {/* <button
-          type="submit"
-          disabled={submitting}
-          className="rounded-full px-6 py-2.5 text-white shadow-sm transition
-                     bg-indigo-600 hover:bg-indigo-500 disabled:opacity-60 disabled:cursor-not-allowed"
-        >
-          {submitting ? "Saving..." : "Add doctor"}
-        </button> */}
       </div>
 
-      {/* Body */}
       <div className="grid grid-cols-1 gap-8 p-6 md:grid-cols-2">
         {/* Upload ảnh */}
         <div className="md:col-span-2">
@@ -214,7 +204,6 @@ const AddDoctor = () => {
           </div>
         </div>
 
-        {/* Cột phải */}
         <div className="flex flex-col gap-4">
           <div className="space-y-1">
             <label className="text-sm font-medium text-gray-700">
@@ -240,8 +229,8 @@ const AddDoctor = () => {
               Education
             </label>
             <input
-              value={education}
-              onChange={(e) => setEducation(e.target.value)}
+              value={degree}
+              onChange={(e) => setDegree(e.target.value)}
               type="text"
               placeholder="E.g. MBBS, MD"
               className="w-full rounded-lg border border-gray-300 px-3 py-2 text-gray-800
