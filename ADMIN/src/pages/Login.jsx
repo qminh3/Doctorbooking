@@ -1,15 +1,25 @@
 import React, { useContext, useState } from "react";
-import { assets } from "./../assets/assets_admin/assets";
 import { Admincontext } from "../context/AdminContext";
 import axios from "axios";
-import { ToastContainer, toast } from "react-toastify";
+import { toast } from "react-toastify";
+import { DoctorContext } from "../context/DoctorContext";
+
 const Login = () => {
-  const [state, setState] = useState("Admin");
+  const [state, setState] = useState("Admin"); // "Admin" hoặc "Doctor"
   const { setAToken, backendUrl } = useContext(Admincontext);
+  const { setDToken } = useContext(DoctorContext);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+
   const handleLogin = async (e) => {
     e.preventDefault();
+    if (!email || !password) {
+      return toast.warn("Vui lòng nhập đầy đủ email và mật khẩu");
+    }
+
+    setIsLoading(true);
     try {
       if (state === "Admin") {
         const { data } = await axios.post(backendUrl + "/api/admin/login", {
@@ -17,73 +27,132 @@ const Login = () => {
           password,
         });
         if (data.success) {
-          console.log(data.token);
-          setAToken(data.token);
           localStorage.setItem("aToken", data.token);
+          setAToken(data.token);
+          toast.success("Đăng nhập Quản trị viên thành công!");
         } else {
-          toast.error(data.message);
+          toast.error(data.message || "Đăng nhập thất bại");
+        }
+      } else {
+        const { data } = await axios.post(backendUrl + "/api/doctor/login", {
+          email,
+          password,
+        });
+        if (data.success) {
+          localStorage.setItem("dToken", data.token);
+          setDToken(data.token);
+          toast.success("Đăng nhập Bác sĩ thành công!");
+        } else {
+          toast.error(data.message || "Đăng nhập thất bại");
         }
       }
     } catch (error) {
-      //   console.error("Login failed:", error);
-      //   alert("Login failed. Please try again.");
+      console.error("Lỗi đăng nhập:", error);
+      const msg = error?.response?.data?.message || "Đăng nhập thất bại. Vui lòng kiểm tra lại thông tin!";
+      toast.error(msg);
+    } finally {
+      setIsLoading(false);
     }
   };
 
   return (
-    <form className="min-h-[80vh] flex items-center " onSubmit={handleLogin}>
-      <div className="flex flex-col gap-3 m-auto items-start p-8 min-w-[340px] sm:min-w-96  rounded-xl text-[#5E5E5E] text-sm shadow-lg">
-        <p className="text-2xl font-semibold m-auto">
-          <span className="text-[#5E6FFF]"> {state} </span>Login
-        </p>
-        <div className="w-full">
-          <p className="text-xl ">Email</p>
-          <input
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            className="border border-[#DADADA] rounded w-full p-2 mt-1"
-            type="text"
-            id="username"
-            required
-          />
-        </div>
-        <div className="w-full">
-          <p className="text-xl ">Password</p>
-          <input
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            type="password"
-            id="password"
-            required
-            className="border border-[#DADADA] rounded w-full p-2 mt-1"
-          />
-        </div>
-        <button className="bg-[#5e6fff] text-white w-full py-2 rounded-md mt-4 hover:bg-[#4a54d9] transition-colors duration-300 cursor-pointer text-base hover:font-semibold">
-          Login
-        </button>
-        {state === "Admin" ? (
-          <p className="text-sm text-[#5E5E5E]">
-            Doctor Login ?{" "}
-            <span
-              className="text-[#5e6fff] underline cursor-pointer"
-              onClick={() => setState("Doctor")}
-            >
-              Click here
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50 flex items-center justify-center p-4">
+      <div className="bg-white rounded-3xl shadow-2xl border border-gray-100 p-8 sm:p-10 w-full max-w-md">
+        <div className="text-center mb-8">
+          <div className="inline-flex items-center justify-center w-16 h-16 bg-[#5f6fff] text-white rounded-2xl mb-3 shadow-md text-2xl">
+            🩺
+          </div>
+          <h1 className="text-2xl font-bold text-gray-900 mb-1">
+            Hệ Thống Quản Trị & Bác Sĩ
+          </h1>
+          <p className="text-gray-500 text-sm">
+            Đăng nhập với vai trò{" "}
+            <span className="text-[#5f6fff] font-bold">
+              {state === "Admin" ? "Quản trị viên" : "Bác sĩ phụ trách"}
             </span>
           </p>
-        ) : (
-          <p className="text-sm text-[#5E5E5E]">
-            Admin Login ?{" "}
-            <span
-              className="text-[#5e6fff] underline cursor-pointer"
-              onClick={() => setState("Admin")}
-            >
-              Click here
-            </span>
-          </p>
-        )}
+        </div>
+
+        {/* Role Switcher Tabs */}
+        <div className="flex bg-gray-100 p-1 rounded-xl mb-6 text-sm font-semibold">
+          <button
+            type="button"
+            onClick={() => setState("Admin")}
+            className={`flex-1 py-2 rounded-lg transition cursor-pointer ${
+              state === "Admin"
+                ? "bg-white text-blue-700 shadow-xs"
+                : "text-gray-500 hover:text-gray-800"
+            }`}
+          >
+            Quản trị viên
+          </button>
+          <button
+            type="button"
+            onClick={() => setState("Doctor")}
+            className={`flex-1 py-2 rounded-lg transition cursor-pointer ${
+              state === "Doctor"
+                ? "bg-white text-emerald-700 shadow-xs"
+                : "text-gray-500 hover:text-gray-800"
+            }`}
+          >
+            Bác sĩ
+          </button>
+        </div>
+
+        <form onSubmit={handleLogin} className="space-y-4">
+          <div>
+            <label className="block text-gray-700 text-sm font-medium mb-1">
+              Địa chỉ Email
+            </label>
+            <input
+              type="email"
+              required
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="example@bookingdoctor.vn"
+              className="w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#5f6fff] focus:bg-white transition"
+            />
+          </div>
+
+          <div>
+            <label className="block text-gray-700 text-sm font-medium mb-1">
+              Mật khẩu
+            </label>
+            <div className="relative">
+              <input
+                type={showPassword ? "text" : "password"}
+                required
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="Nhập mật khẩu..."
+                className="w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#5f6fff] focus:bg-white transition pr-12"
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-3 top-3.5 text-xs text-gray-400 hover:text-gray-600 font-semibold cursor-pointer"
+              >
+                {showPassword ? "Ẩn" : "Hiện"}
+              </button>
+            </div>
+          </div>
+
+          <button
+            type="submit"
+            disabled={isLoading}
+            className="w-full bg-[#5f6fff] hover:bg-[#4d5de6] text-white py-3.5 rounded-xl font-bold text-sm shadow-md transition cursor-pointer mt-2 disabled:bg-gray-400"
+          >
+            {isLoading
+              ? "Đang xác thực..."
+              : `Đăng nhập ${state === "Admin" ? "Quản Trị Viên" : "Bác Sĩ"}`}
+          </button>
+        </form>
+
+        <div className="mt-6 text-center text-xs text-gray-400">
+          BookingDoctor • Nền tảng quản lý phòng khám trực tuyến
+        </div>
       </div>
-    </form>
+    </div>
   );
 };
 

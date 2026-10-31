@@ -1,66 +1,90 @@
 import React, { useContext } from "react";
 import { Admincontext } from "../context/AdminContext";
+import { DoctorContext } from "../context/DoctorContext";
 import { NavLink } from "react-router-dom";
 import { assets } from "../assets/assets_admin/assets";
 
-const Slidebar = () => {
-  const { aToken, setAToken } = useContext(Admincontext);
+const Sidebar = () => {
+  const { aToken } = useContext(Admincontext);
+  const { dToken } = useContext(DoctorContext);
+
+  const adminNavItems = [
+    {
+      to: "/admin-dashboard",
+      icon: assets.home_icon,
+      label: "Tổng quan",
+    },
+    {
+      to: "/all-appointment",
+      icon: assets.appointment_icon,
+      label: "Tất cả lịch hẹn",
+    },
+    {
+      to: "/add-doctor",
+      icon: assets.add_icon,
+      label: "Thêm bác sĩ",
+    },
+    {
+      to: "/doctor-list",
+      icon: assets.people_icon,
+      label: "Danh sách bác sĩ",
+    },
+  ];
+
+  const doctorNavItems = [
+    {
+      to: "/doctor-dashboard",
+      icon: assets.home_icon,
+      label: "Tổng quan",
+    },
+    {
+      to: "/doctor-appointment",
+      icon: assets.appointment_icon,
+      label: "Lịch khám bệnh",
+    },
+    {
+      to: "/doctor-profile",
+      icon: assets.people_icon,
+      label: "Hồ sơ cá nhân",
+    },
+  ];
+
+  const navItems = aToken ? adminNavItems : doctorNavItems;
+
   return (
-    <div className="min-h-screen bg-white ">
-      {aToken ? (
-        <ul className="text-[#515151] mt-5">
-          <NavLink
-            to={"/admin-dashboard"}
-            className={({ isActive }) =>
-              `flex items-center gap-3 py-3.5 px-3 md:px-9 md:min-w-72 cursor-pointer ${
-                isActive ? "bg-[#F2F3FF] border-r-4 border-[#5e6fff]" : ""
-              }`
-            }
-          >
-            <img src={assets.home_icon} alt="" />
-            <p>Dashboard</p>
-          </NavLink>
-          <NavLink
-            to={"/all-appointment"}
-            className={({ isActive }) =>
-              `flex items-center gap-3 py-3.5 px-3 md:px-9 md:min-w-72 cursor-pointer ${
-                isActive ? "bg-[#F2F3FF] border-r-4 border-[#5e6fff]" : ""
-              }`
-            }
-          >
-            <img src={assets.appointment_icon} alt="" />
-            <p>Appointments</p>
-          </NavLink>
-          <NavLink
-            to={"/add-doctor"}
-            className={({ isActive }) =>
-              `flex items-center gap-3 py-3.5 px-3 md:px-9 md:min-w-72 cursor-pointer ${
-                isActive ? "bg-[#F2F3FF] border-r-4 border-[#5e6fff]" : ""
-              }`
-            }
-          >
-            <img src={assets.add_icon} alt="" />
-            <p>Add Doctor</p>
-          </NavLink>
-          <NavLink
-            to={"/doctor-list"}
-            className={({ isActive }) =>
-              `flex items-center gap-3 py-3.5 px-3 md:px-9 md:min-w-72 cursor-pointer ${
-                isActive ? "bg-[#F2F3FF] border-r-4 border-[#5e6fff]" : ""
-              }`
-            }
-          >
-            <img src={assets.people_icon} alt="" />
-            <p>Doctors List</p>
-          </NavLink>
-        </ul>
-      ) : (
-        <p className="text-center text-gray-500 mt-10">
-          Please log in to access the admin panel.
+    <aside className="w-64 min-h-[calc(100vh-64px)] bg-white border-r border-gray-200 shadow-xs flex-shrink-0">
+      <nav className="p-4">
+        <p className="text-[11px] font-bold text-gray-400 uppercase tracking-wider px-3 mb-2">
+          {aToken ? "Menu Quản Trị" : "Menu Bác Sĩ"}
         </p>
-      )}
-    </div>
+        <ul className="space-y-1.5">
+          {navItems.map((item) => (
+            <li key={item.to}>
+              <NavLink
+                to={item.to}
+                className={({ isActive }) =>
+                  `flex items-center gap-3.5 py-3 px-4 rounded-xl transition-all font-medium text-sm ${
+                    isActive
+                      ? aToken
+                        ? "bg-blue-50 text-blue-700 shadow-xs font-semibold"
+                        : "bg-emerald-50 text-emerald-700 shadow-xs font-semibold"
+                      : "text-gray-600 hover:text-gray-900 hover:bg-gray-50"
+                  }`
+                }
+              >
+                <img
+                  src={item.icon}
+                  alt={item.label}
+                  className="w-5 h-5 flex-shrink-0 opacity-80"
+                />
+                <span>{item.label}</span>
+              </NavLink>
+            </li>
+          ))}
+        </ul>
+      </nav>
+    </aside>
   );
 };
 
-export default Slidebar;
+export default Sidebar;
