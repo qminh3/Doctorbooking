@@ -1,14 +1,11 @@
-import { createContext } from "react";
-// import { doctors } from "../assets/assets_frontend/assets";
+import { createContext, useState, useEffect } from "react";
 import axios from "axios";
-import { useState } from "react";
-import { useEffect } from "react";
 import { toast } from "react-toastify";
 
 export const AppContext = createContext();
 
 const AppContextProvider = (props) => {
-  const currencySymbol = "$";
+  const currencySymbol = "VNĐ";
   const backendURL =
     import.meta.env.VITE_BACKEND_URL || "http://localhost:4000";
   const [doctors, setDoctors] = useState([]);
@@ -22,16 +19,16 @@ const AppContextProvider = (props) => {
       const { data } = await axios.get(`${backendURL}/api/doctor/list`);
 
       if (data.success) {
-        console.log("Fetched doctors:", data.doctors);
         setDoctors(data.doctors);
       } else {
-        toast.error(data.message);
+        toast.error(data.message || "Không thể tải danh sách bác sĩ");
       }
     } catch (error) {
-      console.log(error);
-      toast.error("Something went wrong in fetching doctors");
+      console.error(error);
+      toast.error("Không thể kết nối đến máy chủ để tải danh sách bác sĩ");
     }
   };
+
   const loadUserProfile = async () => {
     try {
       const { data } = await axios.get(`${backendURL}/api/user/get-profile`, {
@@ -42,11 +39,15 @@ const AppContextProvider = (props) => {
       if (data.success) {
         setUserData(data.userData);
       } else {
-        toast.error(data.message);
+        toast.error(data.message || "Không thể tải thông tin hồ sơ");
       }
     } catch (error) {
-      console.log(error);
-      toast.error("Something went wrong in fetching user profile");
+      console.error(error);
+      // Nếu lỗi 401 hoặc 403, xóa token cũ
+      if (error?.response?.status === 401 || error?.response?.status === 403) {
+        setToken(false);
+        localStorage.removeItem("token");
+      }
     }
   };
 
@@ -61,18 +62,22 @@ const AppContextProvider = (props) => {
     backendURL,
     loadUserProfile,
   };
+
   useEffect(() => {
     getDoctorsData();
   }, []);
+
   useEffect(() => {
     if (token) {
       loadUserProfile();
+    } else {
+      setUserData(false);
     }
-    setUserData(false);
   }, [token]);
 
   return (
     <AppContext.Provider value={value}>{props.children}</AppContext.Provider>
   );
 };
+
 export default AppContextProvider;

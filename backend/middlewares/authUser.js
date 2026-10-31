@@ -3,18 +3,22 @@ import jwt from "jsonwebtoken";
 const authUser = (req, res, next) => {
   try {
     const authHeader = req.headers.authorization;
+    let token = "";
 
-    if (!authHeader || !authHeader.startsWith("Bearer ")) {
+    if (authHeader && authHeader.startsWith("Bearer ")) {
+      token = authHeader.split(" ")[1];
+    } else if (req.headers.token) {
+      token = req.headers.token;
+    }
+
+    if (!token) {
       return res.status(401).json({
         success: false,
-        message: "Authorization required. Please provide Bearer token",
+        message: "Vui lòng đăng nhập để tiếp tục thao tác",
       });
     }
 
-    const token = authHeader.split(" ")[1];
-
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    console.log("token_decode", decoded);
 
     if (!req.body) {
       req.body = {};
@@ -26,8 +30,9 @@ const authUser = (req, res, next) => {
     console.error("Token verification error:", error);
     return res.status(403).json({
       success: false,
-      message: "Invalid or expired token",
+      message: "Phiên đăng nhập đã hết hạn hoặc không hợp lệ. Vui lòng đăng nhập lại",
     });
   }
 };
+
 export default authUser;

@@ -9,7 +9,7 @@ const AddDoctor = () => {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [experience, setExperience] = useState("1 year");
+  const [experience, setExperience] = useState("1 năm");
   const [fees, setFees] = useState("");
   const [speciality, setSpeciality] = useState("General physician");
   const [degree, setDegree] = useState("");
@@ -24,10 +24,10 @@ const AddDoctor = () => {
     e.preventDefault();
 
     if (!docImg) {
-      return toast.error("Please upload a doctor image");
+      return toast.warn("Vui lòng tải lên ảnh chân dung của bác sĩ");
     }
     if (!aToken) {
-      return toast.error("Missing admin token. Please log in again.");
+      return toast.error("Phiên đăng nhập quản trị viên đã hết hạn. Vui lòng đăng nhập lại!");
     }
 
     try {
@@ -58,12 +58,12 @@ const AddDoctor = () => {
       );
 
       if (data?.success) {
-        toast.success("Doctor added successfully");
+        toast.success(data?.message || "Thêm bác sĩ thành công!");
         setDocImg(null);
         setName("");
         setEmail("");
         setPassword("");
-        setExperience("1 year");
+        setExperience("1 năm");
         setFees("");
         setSpeciality("General physician");
         setDegree("");
@@ -71,11 +71,12 @@ const AddDoctor = () => {
         setAddress2("");
         setAbout("");
       } else {
-        toast.error(data?.message || "Failed to add doctor");
+        toast.error(data?.message || "Không thể thêm bác sĩ");
       }
     } catch (err) {
+      console.error(err);
       toast.error(
-        err?.response?.data?.message || "Unexpected error. Please try again."
+        err?.response?.data?.message || "Đã xảy ra lỗi kết nối. Vui lòng thử lại!"
       );
     } finally {
       setSubmitting(false);
@@ -85,30 +86,35 @@ const AddDoctor = () => {
   return (
     <form
       onSubmit={handleSubmit}
-      className="mx-auto my-6 w-full max-w-5xl overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm"
+      className="mx-auto my-4 w-full max-w-5xl overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-xs"
     >
-      <div className="flex items-center justify-between gap-4 border-b border-gray-100 bg-gray-50/60 px-6 py-4">
-        <p className="text-lg font-semibold text-gray-800">Add Doctor</p>
+      <div className="flex items-center justify-between border-b border-gray-100 bg-gray-50/80 px-6 py-4">
+        <div>
+          <h1 className="text-xl font-bold text-gray-900">Thêm Bác Sĩ Mới</h1>
+          <p className="text-xs text-gray-500 mt-0.5">
+            Điền đầy đủ thông tin chuyên môn để tạo hồ sơ bác sĩ trên hệ thống.
+          </p>
+        </div>
       </div>
 
-      <div className="grid grid-cols-1 gap-8 p-6 md:grid-cols-2">
+      <div className="grid grid-cols-1 gap-6 p-6 md:grid-cols-2">
         {/* Upload ảnh */}
         <div className="md:col-span-2">
           <label
             htmlFor="doc-img"
-            className="flex w-full cursor-pointer items-center gap-5 rounded-xl border border-dashed border-gray-300 bg-gray-50/50 p-4 transition hover:border-indigo-300 hover:bg-indigo-50/50"
+            className="flex w-full cursor-pointer items-center gap-5 rounded-2xl border-2 border-dashed border-gray-300 bg-gray-50 p-4 transition hover:border-[#5f6fff] hover:bg-blue-50/40"
           >
             <img
-              className="h-16 w-16 rounded-xl object-cover"
+              className="h-16 w-16 rounded-xl object-cover border border-gray-200"
               src={docImg ? URL.createObjectURL(docImg) : assets.upload_area}
-              alt="doctor"
+              alt="doctor avatar"
             />
             <div className="flex flex-col">
-              <span className="text-sm font-medium text-gray-700">
-                Upload doctor picture
+              <span className="text-sm font-bold text-gray-800">
+                Tải lên ảnh chân dung bác sĩ
               </span>
-              <span className="text-xs text-gray-500">
-                PNG/JPG up to 5MB. Click to select.
+              <span className="text-xs text-gray-500 mt-0.5">
+                Định dạng JPG, PNG (tối đa 5MB). Nhấp vào đây để chọn ảnh.
               </span>
             </div>
           </label>
@@ -124,164 +130,165 @@ const AddDoctor = () => {
         {/* Cột trái */}
         <div className="flex flex-col gap-4">
           <div className="space-y-1">
-            <label className="text-sm font-medium text-gray-700">
-              Doctor name
+            <label className="text-xs font-bold text-gray-700">
+              Họ và tên bác sĩ <span className="text-red-500">*</span>
             </label>
             <input
+              type="text"
+              required
               value={name}
               onChange={(e) => setName(e.target.value)}
-              type="text"
-              placeholder="Name"
-              className="w-full rounded-lg border border-gray-300 px-3 py-2 text-gray-800
-                         placeholder:text-gray-400 focus:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-100"
-              required
+              placeholder="Ví dụ: BSCKII. Trần Minh Tuấn"
+              className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#5f6fff] focus:bg-white"
             />
           </div>
 
           <div className="space-y-1">
-            <label className="text-sm font-medium text-gray-700">
-              Doctor email
+            <label className="text-xs font-bold text-gray-700">
+              Địa chỉ Email <span className="text-red-500">*</span>
             </label>
             <input
+              type="email"
+              required
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              type="email"
-              placeholder="email@example.com"
-              className="w-full rounded-lg border border-gray-300 px-3 py-2 text-gray-800
-                         placeholder:text-gray-400 focus:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-100"
-              required
+              placeholder="doctor@bookingdoctor.vn"
+              className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#5f6fff] focus:bg-white"
             />
           </div>
 
           <div className="space-y-1">
-            <label className="text-sm font-medium text-gray-700">
-              Doctor password
+            <label className="text-xs font-bold text-gray-700">
+              Mật khẩu đăng nhập <span className="text-red-500">*</span>
             </label>
             <input
+              type="password"
+              required
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              type="password"
-              placeholder="Password"
-              className="w-full rounded-lg border border-gray-300 px-3 py-2 text-gray-800
-                         placeholder:text-gray-400 focus:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-100"
-              required
+              placeholder="Tối thiểu 6 ký tự"
+              className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#5f6fff] focus:bg-white"
             />
           </div>
 
           <div className="space-y-1">
-            <label className="text-sm font-medium text-gray-700">
-              Experience
+            <label className="text-xs font-bold text-gray-700">
+              Kinh nghiệm làm việc
             </label>
             <select
               value={experience}
               onChange={(e) => setExperience(e.target.value)}
-              className="w-full rounded-lg border border-gray-300 px-3 py-2 text-gray-800
-                         focus:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-100"
+              className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm font-medium focus:outline-none focus:ring-2 focus:ring-[#5f6fff]"
             >
-              <option value="1 year">1 year</option>
-              <option value="2 years">2 years</option>
-              <option value="3 years">3 years</option>
-              <option value="4 years">4 years</option>
-              <option value="5 years">5 years</option>
+              <option value="1 năm">1 năm kinh nghiệm</option>
+              <option value="2 năm">2 năm kinh nghiệm</option>
+              <option value="3 năm">3 năm kinh nghiệm</option>
+              <option value="4 năm">4 năm kinh nghiệm</option>
+              <option value="5 năm">5 năm kinh nghiệm</option>
+              <option value="8 năm">8 năm kinh nghiệm</option>
+              <option value="10+ năm">Trên 10 năm kinh nghiệm</option>
             </select>
           </div>
 
           <div className="space-y-1">
-            <label className="text-sm font-medium text-gray-700">Fees</label>
+            <label className="text-xs font-bold text-gray-700">
+              Mức phí khám niêm yết (VNĐ) <span className="text-red-500">*</span>
+            </label>
             <input
+              type="number"
+              required
               value={fees}
               onChange={(e) => setFees(e.target.value)}
-              type="number"
-              min={0}
-              placeholder="Consultation fee"
-              className="w-full rounded-lg border border-gray-300 px-3 py-2 text-gray-800
-                         placeholder:text-gray-400 focus:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-100"
-              required
+              placeholder="Ví dụ: 300000"
+              className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#5f6fff] focus:bg-white"
             />
           </div>
         </div>
 
+        {/* Cột phải */}
         <div className="flex flex-col gap-4">
           <div className="space-y-1">
-            <label className="text-sm font-medium text-gray-700">
-              Specialization
+            <label className="text-xs font-bold text-gray-700">
+              Chuyên khoa <span className="text-red-500">*</span>
             </label>
             <select
               value={speciality}
               onChange={(e) => setSpeciality(e.target.value)}
-              className="w-full rounded-lg border border-gray-300 px-3 py-2 text-gray-800
-                         focus:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-100"
+              className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm font-medium focus:outline-none focus:ring-2 focus:ring-[#5f6fff]"
             >
-              <option value="General physician">General physician</option>
-              <option value="Gynecologist">Gynecologist</option>
-              <option value="Dermatologist">Dermatologist</option>
-              <option value="Pediatricians">Pediatricians</option>
-              <option value="Neurologist">Neurologist</option>
-              <option value="Gastroenterologist">Gastroenterologist</option>
+              <option value="General physician">Bác sĩ Đa khoa</option>
+              <option value="Gynecologist">Sản phụ khoa</option>
+              <option value="Dermatologist">Da liễu</option>
+              <option value="Pediatricians">Nhi khoa</option>
+              <option value="Neurologist">Thần kinh</option>
+              <option value="Gastroenterologist">Tiêu hóa</option>
             </select>
           </div>
 
           <div className="space-y-1">
-            <label className="text-sm font-medium text-gray-700">
-              Education
+            <label className="text-xs font-bold text-gray-700">
+              Học vị / Bằng cấp <span className="text-red-500">*</span>
             </label>
             <input
+              type="text"
+              required
               value={degree}
               onChange={(e) => setDegree(e.target.value)}
-              type="text"
-              placeholder="E.g. MBBS, MD"
-              className="w-full rounded-lg border border-gray-300 px-3 py-2 text-gray-800
-                         placeholder:text-gray-400 focus:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-100"
+              placeholder="Ví dụ: BSCKII, ThS.BS, Bác sĩ Đa khoa"
+              className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#5f6fff] focus:bg-white"
             />
           </div>
 
           <div className="space-y-1">
-            <label className="text-sm font-medium text-gray-700">Address</label>
+            <label className="text-xs font-bold text-gray-700">
+              Địa chỉ phòng khám (Dòng 1: Số nhà, tên đường) <span className="text-red-500">*</span>
+            </label>
             <input
+              type="text"
+              required
               value={address1}
               onChange={(e) => setAddress1(e.target.value)}
-              type="text"
-              placeholder="Address line 1"
-              className="mb-2 w-full rounded-lg border border-gray-300 px-3 py-2 text-gray-800
-                         placeholder:text-gray-400 focus:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-100"
-              required
+              placeholder="Số 123 Đường Cầu Giấy"
+              className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#5f6fff] focus:bg-white"
             />
+          </div>
+
+          <div className="space-y-1">
+            <label className="text-xs font-bold text-gray-700">
+              Địa chỉ phòng khám (Dòng 2: Phường, Quận, Thành phố)
+            </label>
             <input
+              type="text"
               value={address2}
               onChange={(e) => setAddress2(e.target.value)}
-              type="text"
-              placeholder="Address line 2"
-              className="w-full rounded-lg border border-gray-300 px-3 py-2 text-gray-800
-                         placeholder:text-gray-400 focus:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-100"
-              required
+              placeholder="Phường Dịch Vọng, Quận Cầu Giấy, Hà Nội"
+              className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#5f6fff] focus:bg-white"
             />
           </div>
         </div>
 
-        <div className="md:col-span-2">
-          <label className="mb-2 block text-sm font-medium text-gray-700">
-            About Doctor
+        {/* About full width */}
+        <div className="md:col-span-2 space-y-1">
+          <label className="text-xs font-bold text-gray-700">
+            Giới thiệu tiểu sử & quá trình công tác
           </label>
           <textarea
+            rows={4}
             value={about}
             onChange={(e) => setAbout(e.target.value)}
-            rows={5}
-            placeholder="Short bio, experiences, certifications..."
-            className="w-full rounded-lg border border-gray-300 px-3 py-2 text-gray-800
-                       placeholder:text-gray-400 focus:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-100"
-            required
+            placeholder="Mô tả quá trình đào tạo, kinh nghiệm công tác và thế mạnh chuyên môn của bác sĩ..."
+            className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#5f6fff] focus:bg-white"
           />
         </div>
       </div>
 
-      <div className="flex justify-end border-t border-gray-100 bg-gray-50/60 px-6 py-4">
+      <div className="border-t border-gray-100 bg-gray-50/50 px-6 py-4 flex justify-end">
         <button
           type="submit"
           disabled={submitting}
-          className="rounded-full px-6 py-2.5 text-white shadow-sm transition
-                     bg-indigo-600 hover:bg-indigo-500 disabled:opacity-60 disabled:cursor-not-allowed"
+          className="bg-[#5f6fff] hover:bg-[#4d5de6] text-white px-8 py-3 rounded-xl font-bold text-sm shadow-xs transition cursor-pointer disabled:bg-gray-400"
         >
-          {submitting ? "Saving..." : "Add doctor"}
+          {submitting ? "Đang xử lý..." : "Lưu & Thêm Bác Sĩ"}
         </button>
       </div>
     </form>

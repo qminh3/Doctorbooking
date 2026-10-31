@@ -12,13 +12,18 @@ const userRegister = async (req, res) => {
     const { name, email, password } = req.body;
 
     if (!name || !email || !password) {
-      return res.status(400).json({ message: "All fields are required" });
+      return res.status(400).json({ success: false, message: "Vui lòng điền đầy đủ tất cả các trường thông tin" });
     }
     if (!validator.isEmail(email)) {
-      return res.status(400).json({ message: "email khong hop le" });
+      return res.status(400).json({ success: false, message: "Địa chỉ email không hợp lệ" });
     }
     if (password.length < 8) {
-      return res.json({ message: "mat khau phai co it nhat 8 ky tu" });
+      return res.status(400).json({ success: false, message: "Mật khẩu phải chứa ít nhất 8 ký tự" });
+    }
+
+    const existingUser = await userrModel.findOne({ email });
+    if (existingUser) {
+      return res.status(400).json({ success: false, message: "Email này đã được sử dụng để đăng ký tài khoản" });
     }
 
     const salt = await bycrypt.genSalt(10);
@@ -36,23 +41,24 @@ const userRegister = async (req, res) => {
     });
     return res.json({
       success: true,
-      message: "User registered successfully",
+      message: "Đăng ký tài khoản thành công",
       token,
     });
   } catch (error) {
     console.error(error);
-    return res.status(500).json({ message: error.message });
+    return res.status(500).json({ success: false, message: error.message || "Lỗi máy chủ nội bộ" });
   }
 };
+
 const userLogin = async (req, res) => {
   try {
     const { email, password } = req.body;
     if (!email || !password) {
-      return res.status(400).json({ message: "All fields are required" });
+      return res.status(400).json({ success: false, message: "Vui lòng nhập email và mật khẩu" });
     }
     const user = await userrModel.findOne({ email });
     if (!user) {
-      return res.status(400).json({ message: "User khong ton tai" });
+      return res.status(400).json({ success: false, message: "Tài khoản không tồn tại trong hệ thống" });
     }
     const isMatch = await bycrypt.compare(password, user.password);
     if (isMatch) {
@@ -61,45 +67,59 @@ const userLogin = async (req, res) => {
       });
       return res.json({
         success: true,
-        message: "User logged in successfully",
+        message: "Đăng nhập thành công",
         token,
       });
     } else {
-      return res.status(400).json({ message: "Invalid credentials" });
+      return res.status(400).json({ success: false, message: "Mật khẩu không chính xác" });
     }
   } catch (error) {
     console.error(error);
-    return res.status(500).json({ message: error.message });
+    return res.status(500).json({ success: false, message: error.message || "Lỗi máy chủ nội bộ" });
   }
 };
 
-//
+// Lấy thông tin user
 const userProfile = async (req, res) => {
   try {
     const { userId } = req.body;
     const userData = await userrModel.findById(userId).select("-password");
+    if (!userData) {
+      return res.status(404).json({ success: false, message: "Không tìm thấy thông tin người dùng" });
+    }
     res.json({ success: true, userData });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: "Internal server error" });
+    res.status(500).json({ success: false, message: "Lỗi máy chủ nội bộ" });
   }
 };
 
+// Cập nhật thông tin profile user
 const userUpdateProfile = async (req, res) => {
   try {
     const { userId, name, phone, address, dob, gender } = req.body;
     const imageFile = req.file;
     if (!name || !phone || !dob || !gender) {
-      return res.json({ message: "All fields are required" });
+      return res.json({ success: false, message: "Vui lòng điền đầy đủ các thông tin bắt buộc" });
+    }
+
+    let parsedAddress = address;
+    if (typeof address === "string") {
+      try {
+        parsedAddress = JSON.parse(address);
+      } catch (e) {
+        parsedAddress = { line1: address, line2: "" };
+      }
     }
 
     await userrModel.findByIdAndUpdate(userId, {
       name,
       phone,
-      address: JSON.parse(address),
+      address: parsedAddress,
       dob,
       gender,
     });
+
     if (imageFile) {
       const imageUpload = await cloudinary.uploader.upload(imageFile.path, {
         resource_type: "image",
@@ -107,46 +127,51 @@ const userUpdateProfile = async (req, res) => {
       const imageUrl = imageUpload.secure_url;
       await userrModel.findByIdAndUpdate(userId, { image: imageUrl });
     }
-    res.json({ success: true, message: "Profile updated successfully" });
+    res.json({ success: true, message: "Cập nhật hồ sơ thành công" });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: "Internal server error" });
+    res.status(500).json({ success: false, message: "Lỗi máy chủ nội bộ" });
   }
 };
 
-// api để đặt lịch hẹn
-
+// Đặt lịch hẹn
 const bookAppointment = async (req, res) => {
   try {
     const { userId, docId, slotDate, slotTime } = req.body;
-    // lấy thông tin bác sĩ
     const docData = await doctorModel.findById(docId).select("-password");
-    // nếu bác sĩ không tồn tại
-    if (!docData.available) {
+    if (!docData) {
       return res.json({
         success: false,
-        message: "Doctor is not available right now",
+        message: "Không tìm thấy thông tin bác sĩ",
       });
     }
 
-    let slots_booked = docData.slots_booked;
+    if (!docData.available) {
+      return res.json({
+        success: false,
+        message: "Bác sĩ hiện đang tạm ngưng nhận lịch khám",
+      });
+    }
+
+    let slots_booked = docData.slots_booked || {};
 
     // Kiểm tra slot đã được book chưa
     if (slots_booked[slotDate]) {
       if (slots_booked[slotDate].includes(slotTime)) {
         return res.json({
           success: false,
-          message: "Slot is already booked",
+          message: "Khung giờ này đã được đặt, vui lòng chọn giờ khác",
         });
       } else {
         slots_booked[slotDate].push(slotTime);
       }
     } else {
-      slots_booked[slotDate] = [];
-      slots_booked[slotDate].push(slotTime);
+      slots_booked[slotDate] = [slotTime];
     }
+
     const userData = await userrModel.findById(userId).select("-password");
     delete docData.slots_booked;
+
     const appointmentData = {
       userId,
       docId,
@@ -161,38 +186,52 @@ const bookAppointment = async (req, res) => {
     const newAppointment = new appointmentModel(appointmentData);
     await newAppointment.save();
     await doctorModel.findByIdAndUpdate(docId, { slots_booked });
+
     return res.json({
       success: true,
-      message: "Appointment booked successfully",
+      message: "Đặt lịch khám bệnh thành công!",
     });
   } catch (error) {
     console.error(error);
-    return res.status(500).json({ message: "Internal server error" });
+    return res.status(500).json({ success: false, message: "Lỗi máy chủ nội bộ" });
   }
 };
 
-// lấy lịch sử đặt lịch của user
+// Lấy lịch sử đặt lịch của user
 const listAppointments = async (req, res) => {
   try {
     const { userId } = req.body;
     const appointments = await appointmentModel.find({ userId });
-
     return res.json({ success: true, appointments });
   } catch (error) {
     console.error(error);
-    return res.status(500).json({ message: "Internal server error" });
+    return res.status(500).json({ success: false, message: "Lỗi máy chủ nội bộ" });
   }
 };
 
-// xóa lịch hẹn
+// Hủy lịch hẹn
 const cancelAppointment = async (req, res) => {
   try {
     const { userId, appointmentId } = req.body;
     const appointmentData = await appointmentModel.findById(appointmentId);
+    if (!appointmentData) {
+      return res.json({
+        success: false,
+        message: "Không tìm thấy thông tin lịch hẹn",
+      });
+    }
+
     if (appointmentData.userId !== userId) {
       return res.json({
         success: false,
-        message: "You are not authorized to cancel this appointment",
+        message: "Bạn không có quyền hủy lịch hẹn này",
+      });
+    }
+
+    if (appointmentData.cancelled) {
+      return res.json({
+        success: false,
+        message: "Lịch hẹn này đã bị hủy trước đó",
       });
     }
 
@@ -203,52 +242,55 @@ const cancelAppointment = async (req, res) => {
     const { docId, slotDate, slotTime } = appointmentData;
     const doctorData = await doctorModel.findById(docId);
 
-    let slots_booked = doctorData.slots_booked;
-    slots_booked[slotDate] = slots_booked[slotDate].filter(
-      (e) => e !== slotTime
-    );
-    await doctorModel.findByIdAndUpdate(docId, { slots_booked });
+    if (doctorData && doctorData.slots_booked && doctorData.slots_booked[slotDate]) {
+      let slots_booked = doctorData.slots_booked;
+      slots_booked[slotDate] = slots_booked[slotDate].filter(
+        (e) => e !== slotTime
+      );
+      await doctorModel.findByIdAndUpdate(docId, { slots_booked });
+    }
+
     return res.json({
       success: true,
-      message: "Appointment cancelled successfully",
+      message: "Hủy lịch hẹn khám thành công",
     });
   } catch (error) {
     console.error(error);
-    return res.status(500).json({ message: "Internal server error" });
+    return res.status(500).json({ success: false, message: "Lỗi máy chủ nội bộ" });
   }
 };
 
+// Cấu hình Razorpay (nếu cần mở rộng)
 const razorpayInstance = new Razorpay({
-  key_id: process.env.RAZORPAY_KEY_ID,
-  key_secret: process.env.RAZORPAY_KEY_SECRET,
+  key_id: process.env.RAZORPAY_KEY_ID || "rzp_test",
+  key_secret: process.env.RAZORPAY_KEY_SECRET || "secret",
 });
 
-// thanh toán
+// Hoàn tất thanh toán
 const paymentComplete = async (req, res) => {
   try {
     const { appointmentId } = req.body;
 
-    // Tìm appointment
     const appointmentData = await appointmentModel.findById(appointmentId);
 
     if (!appointmentData) {
       return res.json({
         success: false,
-        message: "Appointment not found",
+        message: "Không tìm thấy thông tin lịch hẹn",
       });
     }
 
     if (appointmentData.cancelled) {
       return res.json({
         success: false,
-        message: "Cannot pay for cancelled appointment",
+        message: "Không thể thanh toán cho lịch hẹn đã bị hủy",
       });
     }
 
     if (appointmentData.payment) {
       return res.json({
         success: false,
-        message: "Payment already completed",
+        message: "Lịch hẹn này đã hoàn tất thanh toán trước đó",
       });
     }
 
@@ -259,18 +301,17 @@ const paymentComplete = async (req, res) => {
 
     return res.json({
       success: true,
-      message: "Payment completed successfully",
+      message: "Thanh toán viện phí thành công!",
     });
   } catch (error) {
     console.error(error);
     return res.status(500).json({
       success: false,
-      message: "Internal server error",
+      message: "Lỗi máy chủ nội bộ",
     });
   }
 };
 
-// Cập nhật export
 export {
   userRegister,
   userLogin,
@@ -279,5 +320,5 @@ export {
   bookAppointment,
   listAppointments,
   cancelAppointment,
-  paymentComplete, // Thay đổi từ paymentRazorpay
+  paymentComplete,
 };

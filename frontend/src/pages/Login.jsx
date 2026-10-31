@@ -1,23 +1,30 @@
-import React, { useState } from "react";
-import { useContext } from "react";
+import React, { useState, useContext, useEffect } from "react";
 import { AppContext } from "../context/AppContext";
 import axios from "axios";
 import { toast } from "react-toastify";
-import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
 const Login = () => {
   const { backendURL, token, setToken } = useContext(AppContext);
   const navigate = useNavigate();
-  const [state, setState] = useState("Sign Up");
+  const [state, setState] = useState("Login"); // Mặc định là Login
+  const [showPassword, setShowPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
-  const ontSubmitHandler = async (e) => {
+
+  const onSubmitHandler = async (e) => {
     e.preventDefault();
+    setLoading(true);
     try {
       if (state === "Sign Up") {
+        if (!name.trim()) {
+          toast.warn("Vui lòng nhập họ và tên của bạn");
+          setLoading(false);
+          return;
+        }
         const { data } = await axios.post(`${backendURL}/api/user/register`, {
           name,
           email,
@@ -26,8 +33,9 @@ const Login = () => {
         if (data?.success) {
           localStorage.setItem("token", data.token);
           setToken(data.token);
+          toast.success(data.message || "Đăng ký tài khoản thành công!");
         } else {
-          toast.error(data.message);
+          toast.error(data.message || "Đăng ký không thành công");
         }
       } else {
         const { data } = await axios.post(`${backendURL}/api/user/login`, {
@@ -37,17 +45,20 @@ const Login = () => {
         if (data?.success) {
           localStorage.setItem("token", data.token);
           setToken(data.token);
-          toast.success("Login successful");
+          toast.success(data.message || "Đăng nhập thành công!");
         } else {
-          toast.error(data.message);
+          toast.error(data.message || "Thông tin đăng nhập không chính xác");
         }
       }
     } catch (error) {
-      console.log(error);
-      const msg = error?.response?.data?.message || "Something went wrong";
+      console.error(error);
+      const msg = error?.response?.data?.message || "Đã xảy ra lỗi kết nối máy chủ";
       toast.error(msg);
+    } finally {
+      setLoading(false);
     }
   };
+
   useEffect(() => {
     if (token) {
       navigate("/");
@@ -55,74 +66,101 @@ const Login = () => {
   }, [token]);
 
   return (
-    <div className="min-h-screen flex items-center justify-center ">
+    <div className="min-h-[80vh] flex items-center justify-center py-10 px-4">
       <form
-        onSubmit={ontSubmitHandler}
-        className="w-full max-w-md bg-white/90 rounded-3xl shadow-2xl p-10 flex flex-col gap-5 border border-blue-100"
+        onSubmit={onSubmitHandler}
+        className="w-full max-w-md bg-white rounded-3xl shadow-xl p-8 sm:p-10 flex flex-col gap-5 border border-gray-100"
       >
         <div className="text-center mb-2">
-          <p className="text-3xl font-bold text-blue-700 mb-1 tracking-wide drop-shadow-sm">
-            {state === "Sign Up" ? "Create Account" : "Login"}
-          </p>
-          <p className="text-gray-500 text-base">
-            Please {state === "Sign Up" ? "sign up" : "log in"} to book
-            appointment
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-1">
+            {state === "Sign Up" ? "Tạo Tài Khoản Mới" : "Đăng Nhập"}
+          </h1>
+          <p className="text-gray-500 text-sm">
+            {state === "Sign Up"
+              ? "Đăng ký ngay để đặt lịch khám bệnh trực tuyến dễ dàng"
+              : "Chào mừng bạn quay lại với hệ thống BookingDoctor"}
           </p>
         </div>
+
         {state === "Sign Up" && (
           <div className="w-full">
-            <label className="block text-gray-700 mb-1">Full Name</label>
+            <label className="block text-gray-700 text-sm font-semibold mb-1">
+              Họ và tên
+            </label>
             <input
-              className="border border-zinc-300 rounded-xl w-full p-3 mt-1 focus:outline-none focus:ring-2 focus:ring-blue-200 transition"
+              className="border border-gray-300 rounded-xl w-full p-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#5f6fff] transition"
               type="text"
               onChange={(e) => setName(e.target.value)}
               value={name}
-              placeholder="Enter your full name"
+              placeholder="Ví dụ: Nguyễn Văn A"
               autoComplete="name"
+              required
             />
           </div>
         )}
+
         <div className="w-full">
-          <label className="block text-gray-700 mb-1">Email</label>
+          <label className="block text-gray-700 text-sm font-semibold mb-1">
+            Địa chỉ Email
+          </label>
           <input
-            className="border border-zinc-300 rounded-xl w-full p-3 mt-1 focus:outline-none focus:ring-2 focus:ring-blue-200 transition"
+            className="border border-gray-300 rounded-xl w-full p-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#5f6fff] transition"
             type="email"
             onChange={(e) => setEmail(e.target.value)}
             value={email}
-            placeholder="Enter your email"
+            placeholder="example@gmail.com"
             autoComplete="email"
+            required
           />
         </div>
+
         <div className="w-full">
-          <label className="block text-gray-700 mb-1">Password</label>
-          <input
-            className="border border-zinc-300 rounded-xl w-full p-3 mt-1 focus:outline-none focus:ring-2 focus:ring-blue-200 transition"
-            type="password"
-            onChange={(e) => setPassword(e.target.value)}
-            value={password}
-            placeholder="Enter your password"
-            autoComplete={
-              state === "Sign Up" ? "new-password" : "current-password"
-            }
-          />
+          <label className="block text-gray-700 text-sm font-semibold mb-1">
+            Mật khẩu
+          </label>
+          <div className="relative">
+            <input
+              className="border border-gray-300 rounded-xl w-full p-3 pr-10 text-sm focus:outline-none focus:ring-2 focus:ring-[#5f6fff] transition"
+              type={showPassword ? "text" : "password"}
+              onChange={(e) => setPassword(e.target.value)}
+              value={password}
+              placeholder={state === "Sign Up" ? "Tối thiểu 8 ký tự" : "Nhập mật khẩu của bạn"}
+              autoComplete={
+                state === "Sign Up" ? "new-password" : "current-password"
+              }
+              required
+            />
+            <button
+              type="button"
+              onClick={() => setShowPassword(!showPassword)}
+              className="absolute right-3 top-3 text-gray-400 hover:text-gray-600 text-xs font-semibold cursor-pointer"
+            >
+              {showPassword ? "Ẩn" : "Hiện"}
+            </button>
+          </div>
         </div>
+
         <button
           type="submit"
-          className="bg-gradient-to-r from-blue-500 to-purple-500 text-white w-full py-3 rounded-2xl text-base font-semibold mt-2 shadow-md hover:from-blue-600 hover:to-purple-600 transition duration-200 cursor-pointer"
+          disabled={loading}
+          className="bg-[#5f6fff] hover:bg-[#4d5de6] text-white w-full py-3.5 rounded-xl text-sm font-semibold mt-2 shadow-md transition duration-200 cursor-pointer disabled:bg-gray-400"
         >
-          {state === "Sign Up" ? "Create Account" : "Login"}
+          {loading
+            ? "Đang xử lý..."
+            : state === "Sign Up"
+            ? "Đăng Ký Tài Khoản"
+            : "Đăng Nhập Ngay"}
         </button>
-        <p className="text-sm text-center mt-2 text-gray-600">
-          {state === "Sign Up"
-            ? "Already have an account?"
-            : "Don't have an account?"}{" "}
+
+        <p className="text-sm text-center text-gray-600 mt-2">
+          {state === "Sign Up" ? "Đã có tài khoản?" : "Chưa có tài khoản?"}{" "}
           <span
             onClick={() => {
-              state === "Sign Up" ? setState("Login") : setState("Sign Up");
+              setState(state === "Sign Up" ? "Login" : "Sign Up");
             }}
-            className="text-blue-600 font-semibold cursor-pointer hover:underline"
+            className="text-[#5f6fff] font-bold cursor-pointer hover:underline"
           >
-            {state === "Sign Up" ? "Login" : "Sign Up"}
+            {state === "Sign Up" ? "Đăng nhập ngay" : "Tạo tài khoản mới"}
           </span>
         </p>
       </form>

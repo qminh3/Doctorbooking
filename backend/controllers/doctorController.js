@@ -3,160 +3,188 @@ import appointmentModel from "../models/appointmentModel.js";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 
+// Bật / tắt trạng thái sẵn sàng nhận lịch khám
 const changeAvailability = async (req, res) => {
   try {
     const { docId } = req.body;
-    console.log("Received docId:", docId);
     const docData = await doctorModel.findById(docId);
-    console.log("Current availability:", docData.available);
+    if (!docData) {
+      return res.status(404).json({ success: false, message: "Không tìm thấy thông tin bác sĩ" });
+    }
+    const newStatus = !docData.available;
     await doctorModel.findByIdAndUpdate(docId, {
-      available: !docData.available,
+      available: newStatus,
     });
-    res.json({ success: true, message: "Doctor availability updated" });
+    res.json({
+      success: true,
+      message: `Đã ${newStatus ? "bật" : "tắt"} trạng thái nhận lịch khám của bác sĩ`,
+    });
   } catch (error) {
-    console.error("Error changing doctor availability:", error);
-    res.status(500).json({ success: false, message: "Server Error" });
+    console.error("Lỗi cập nhật trạng thái bác sĩ:", error);
+    res.status(500).json({ success: false, message: "Lỗi máy chủ nội bộ" });
   }
 };
 
+// Lấy danh sách bác sĩ công khai
 const doctorList = async (req, res) => {
   try {
     const doctors = await doctorModel.find({}).select(["-password", "-email"]);
-    console.log("Fetched doctors:", doctors);
     res.json({ success: true, doctors });
   } catch (error) {
-    console.error("Error fetching doctor list:", error);
-    res.status(500).json({ success: false, message: "Server Error" });
+    console.error("Lỗi lấy danh sách bác sĩ:", error);
+    res.status(500).json({ success: false, message: "Lỗi máy chủ nội bộ" });
   }
 };
 
-// DOCTOER CONTRLLER LOGIN
-
+// Đăng nhập Bác sĩ
 const doctorlogin = async (req, res) => {
   try {
     const { email, password } = req.body;
+    if (!email || !password) {
+      return res.status(400).json({ success: false, message: "Vui lòng nhập email và mật khẩu" });
+    }
     const doctor = await doctorModel.findOne({ email });
     if (!doctor) {
-      return res.json({ success: false, message: "Invalid credentials" });
+      return res.status(400).json({ success: false, message: "Email bác sĩ không tồn tại trong hệ thống" });
     }
     const isMatch = await bcrypt.compare(password, doctor.password);
     if (isMatch) {
-      const token = jwt.sign({ id: doctor._id }, process.env.JWT_SECRET);
-      res.json({ success: true, message: "Login successful", token });
+      const token = jwt.sign({ id: doctor._id }, process.env.JWT_SECRET, {
+        expiresIn: "7d",
+      });
+      res.json({ success: true, message: "Đăng nhập Bác sĩ thành công", token });
     } else {
-      res.json({ success: false, message: "Invalid credentials" });
+      res.status(400).json({ success: false, message: "Mật khẩu không chính xác" });
     }
   } catch (error) {
-    console.log(error);
+    console.error("Lỗi đăng nhập bác sĩ:", error);
+    res.status(500).json({ success: false, message: "Lỗi máy chủ nội bộ" });
   }
 };
 
+// Lấy danh sách lịch hẹn của Bác sĩ
 const appointmentsDoctor = async (req, res) => {
   try {
     const { docId } = req.body;
-    const appointments = await appointmentModel.find({ docId });
+    const appointments = await appointmentModel.find({ docId }).sort({ date: -1 });
     res.json({ success: true, appointments });
   } catch (error) {
-    console.error("Error fetching doctor's appointments:", error);
-    res.status(500).json({ success: false, message: "Server Error" });
+    console.error("Lỗi lấy lịch hẹn của bác sĩ:", error);
+    res.status(500).json({ success: false, message: "Lỗi máy chủ nội bộ" });
   }
 };
 
-// MARK APPOINTMENT AS COMPLETED
+// Đánh dấu ca khám đã hoàn thành
 const appointmentComplete = async (req, res) => {
   try {
     const { docId, appointmentId } = req.body;
     const appointmentData = await appointmentModel.findById(appointmentId);
-    if (appointmentData && appointmentData.docId == docId) {
+    if (appointmentData && appointmentData.docId.toString() === docId.toString()) {
       await appointmentModel.findByIdAndUpdate(appointmentId, {
         isCompleted: true,
       });
       return res.json({
         success: true,
-        message: "Appointment  completed",
+        message: "Đã xác nhận hoàn thành ca khám bệnh",
       });
     } else {
-      return res.json({
+      return res.status(400).json({
         success: false,
-        message: "Invalid appointment or doctor ID",
+        message: "Lịch hẹn không hợp lệ hoặc bạn không có quyền xử lý",
       });
     }
   } catch (error) {
-    console.error("Error completing appointment:", error);
-    res.status(500).json({ success: false, message: "Server Error" });
+    console.error("Lỗi hoàn thành lịch hẹn:", error);
+    res.status(500).json({ success: false, message: "Lỗi máy chủ nội bộ" });
   }
 };
-// cancel appointment for doctor
+
+// Hủy lịch hẹn từ phía Bác sĩ
 const appointmentCancel = async (req, res) => {
   try {
     const { docId, appointmentId } = req.body;
     const appointmentData = await appointmentModel.findById(appointmentId);
-    if (appointmentData && appointmentData.docId == docId) {
+    if (appointmentData && appointmentData.docId.toString() === docId.toString()) {
       await appointmentModel.findByIdAndUpdate(appointmentId, {
         cancelled: true,
       });
 
+      // Trả lại slot khám trống
+      const { slotDate, slotTime } = appointmentData;
+      const doctorData = await doctorModel.findById(docId);
+      if (doctorData && doctorData.slots_booked && doctorData.slots_booked[slotDate]) {
+        let slots_booked = doctorData.slots_booked;
+        slots_booked[slotDate] = slots_booked[slotDate].filter(
+          (e) => e !== slotTime
+        );
+        await doctorModel.findByIdAndUpdate(docId, { slots_booked });
+      }
+
       return res.json({
         success: true,
-        message: "Appointment  cancelled",
+        message: "Đã hủy ca khám bệnh",
       });
     } else {
-      return res.json({
+      return res.status(400).json({
         success: false,
-        message: "Invalid appointment or doctor ID",
+        message: "Lịch hẹn không hợp lệ hoặc bạn không có quyền xử lý",
       });
     }
   } catch (error) {
-    console.error("Error cancelling appointment:", error);
-    res.status(500).json({ success: false, message: "Server Error" });
+    console.error("Lỗi hủy lịch hẹn:", error);
+    res.status(500).json({ success: false, message: "Lỗi máy chủ nội bộ" });
   }
 };
 
-// doctor dashboard controller
+// Bảng thống kê cá nhân của Bác sĩ
 const doctorDashboard = async (req, res) => {
   try {
     const { docId } = req.body;
     const appointments = await appointmentModel.find({ docId });
     let totalEarnings = 0;
 
-    appointments.map((item, index) => {
+    appointments.forEach((item) => {
       if (item.isCompleted || item.payment) {
         totalEarnings += item.amount;
       }
     });
 
-    let patient = [];
-    appointments.map((item) => {
-      if (!patient.includes(item.userId)) {
-        patient.push(item.userId);
+    let patientsSet = new Set();
+    appointments.forEach((item) => {
+      if (item.userId) {
+        patientsSet.add(item.userId.toString());
       }
     });
+
     const dashData = {
       totalEarnings,
       appointments: appointments.length,
-      patients: patient.length,
-      latestAppointments: appointments.reverse().slice(0, 5),
+      patients: patientsSet.size,
+      latestAppointments: appointments.slice(-5).reverse(),
     };
     res.json({ success: true, dashData });
   } catch (error) {
-    console.error("Error fetching doctor's dashboard data:", error);
+    console.error("Lỗi lấy dữ liệu bảng thống kê bác sĩ:", error);
+    res.status(500).json({ success: false, message: "Lỗi máy chủ nội bộ" });
   }
 };
 
-// dcotor profile
+// Lấy hồ sơ cá nhân của Bác sĩ
 const doctorProfile = async (req, res) => {
   try {
     const { docId } = req.body;
     const doctorProfile = await doctorModel.findById(docId).select("-password");
     if (!doctorProfile) {
-      return res.json({ success: false, message: "Doctor not found" });
+      return res.status(404).json({ success: false, message: "Không tìm thấy hồ sơ bác sĩ" });
     }
     res.json({ success: true, doctorData: doctorProfile });
   } catch (error) {
-    console.error("Error fetching doctor's profile data:", error);
+    console.error("Lỗi lấy hồ sơ bác sĩ:", error);
+    res.status(500).json({ success: false, message: "Lỗi máy chủ nội bộ" });
   }
 };
-// doctor tu apdate profile
+
+// Cập nhật thông tin hồ sơ của Bác sĩ
 const updateDoctorProfile = async (req, res) => {
   try {
     const { docId, fees, address, available } = req.body;
@@ -165,9 +193,10 @@ const updateDoctorProfile = async (req, res) => {
       address,
       available,
     });
-    res.json({ success: true, message: "Profile updated successfully" });
+    res.json({ success: true, message: "Cập nhật hồ sơ bác sĩ thành công" });
   } catch (error) {
-    console.error("Error updating doctor's profile data:", error);
+    console.error("Lỗi cập nhật hồ sơ bác sĩ:", error);
+    res.status(500).json({ success: false, message: "Lỗi máy chủ nội bộ" });
   }
 };
 

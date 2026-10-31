@@ -23,7 +23,7 @@ const authDoctor = (req, res, next) => {
     if (!token) {
       return res
         .status(401)
-        .json({ success: false, message: "Access token is required" });
+        .json({ success: false, message: "Yêu cầu quyền Bác sĩ. Vui lòng đăng nhập lại" });
     }
 
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
@@ -34,10 +34,11 @@ const authDoctor = (req, res, next) => {
     req.body.docId = decoded.id;
     return next();
   } catch (error) {
-    console.error(" Token verification error:", error.message);
+    console.error("Token verification error:", error.message);
     return res
       .status(401)
-      .json({ success: false, message: "Invalid or expired token" });
+      .json({ success: false, message: "Phiên đăng nhập Bác sĩ đã hết hạn hoặc không hợp lệ" });
   }
 };
+
 export default authDoctor;
