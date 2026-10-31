@@ -11,10 +11,13 @@ const appointmentSchema = new mongoose.Schema({
   date: { type: Number, required: true },
   cancelled: { type: Boolean, default: false },
   payment: { type: Boolean, default: false },
+  paymentMethod: { type: String, default: "" }, // VietQR, Cash, VNPay, etc.
+  paymentDate: { type: Number, default: 0 },
+  transactionId: { type: String, default: "" },
   isCompleted: { type: Boolean, default: false },
 });
 
 const appointmentModel =
-  mongoose.model.appointment ||
+  mongoose.models.appointment ||
   mongoose.model("appointment", appointmentSchema);
 export default appointmentModel;

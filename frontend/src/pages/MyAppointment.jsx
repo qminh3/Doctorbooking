@@ -9,6 +9,7 @@ import {
   getSpecialityName,
   getAppointmentStatusInfo,
 } from "../utils/formatters";
+import VietQRModal from "../components/VietQRModal";
 
 const MyAppointment = () => {
   const { backendURL, token, getDoctorsData } = useContext(AppContext);
@@ -17,6 +18,8 @@ const MyAppointment = () => {
   const [appointments, setAppointments] = useState([]);
   const [loading, setLoading] = useState(false);
   const [cancelModalId, setCancelModalId] = useState(null);
+  const [selectedAppointmentForPayment, setSelectedAppointmentForPayment] =
+    useState(null);
 
   const getUserAppointments = async () => {
     try {
@@ -59,29 +62,6 @@ const MyAppointment = () => {
     }
   };
 
-  const initiatePayment = async (appointmentId) => {
-    try {
-      setLoading(true);
-      const { data } = await axios.post(
-        `${backendURL}/api/user/complete-payment`,
-        { appointmentId },
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
-
-      if (data.success) {
-        toast.success(data.message || "Thanh toán viện phí thành công!");
-        getUserAppointments();
-      } else {
-        toast.error(data.message || "Thanh toán thất bại");
-      }
-    } catch (error) {
-      console.error("Error processing payment:", error);
-      toast.error("Đã xảy ra lỗi trong quá trình thanh toán");
-    } finally {
-      setLoading(false);
-    }
-  };
-
   useEffect(() => {
     if (token) {
       getUserAppointments();
@@ -101,7 +81,7 @@ const MyAppointment = () => {
       <div className="mb-8">
         <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Lịch Hẹn Của Tôi</h1>
         <p className="text-gray-500 text-sm mt-1">
-          Theo dõi trạng thái ca khám, quản lý thời gian và hoàn tất viện phí tiện lợi.
+          Theo dõi trạng thái ca khám, quét mã VietQR thanh toán viện phí và quản lý thời gian khám bệnh.
         </p>
       </div>
 
@@ -118,7 +98,7 @@ const MyAppointment = () => {
           </p>
           <button
             onClick={() => navigate("/doctors")}
-            className="px-6 py-2.5 bg-[#5f6fff] text-white rounded-full font-semibold text-sm hover:shadow-md transition"
+            className="px-6 py-2.5 bg-[#5f6fff] text-white rounded-full font-semibold text-sm hover:shadow-md transition cursor-pointer"
           >
             Đặt lịch khám ngay
           </button>
@@ -183,26 +163,34 @@ const MyAppointment = () => {
                     </div>
 
                     {/* Fee */}
-                    <div className="flex items-center gap-2 text-xs sm:text-sm">
-                      <span className="text-gray-400">💵</span>
-                      <span>
-                        Viện phí:{" "}
-                        <strong className="text-emerald-600 font-bold">
-                          {formatCurrency(item.amount)}
-                        </strong>
-                      </span>
+                    <div className="flex flex-wrap items-center gap-3 text-xs sm:text-sm">
+                      <div className="flex items-center gap-1.5">
+                        <span className="text-gray-400">💵</span>
+                        <span>
+                          Viện phí:{" "}
+                          <strong className="text-emerald-600 font-bold">
+                            {formatCurrency(item.amount)}
+                          </strong>
+                        </span>
+                      </div>
+
+                      {item.payment && item.transactionId && (
+                        <div className="text-[11px] bg-blue-50 text-blue-700 px-2 py-0.5 rounded-md border border-blue-100 font-mono">
+                          Mã GD: {item.transactionId}
+                        </div>
+                      )}
                     </div>
                   </div>
 
                   {/* Actions Column */}
-                  <div className="flex-shrink-0 flex flex-col justify-center gap-2 sm:min-w-[180px]">
+                  <div className="flex-shrink-0 flex flex-col justify-center gap-2 sm:min-w-[190px]">
                     {!item.cancelled && !item.isCompleted && !item.payment && (
                       <>
                         <button
-                          onClick={() => initiatePayment(item._id)}
-                          className="w-full px-4 py-2.5 bg-[#5f6fff] hover:bg-[#4d5de6] text-white text-xs sm:text-sm font-semibold rounded-xl shadow-xs transition flex items-center justify-center gap-1.5 cursor-pointer"
+                          onClick={() => setSelectedAppointmentForPayment(item)}
+                          className="w-full px-4 py-2.5 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white text-xs sm:text-sm font-semibold rounded-xl shadow-xs transition flex items-center justify-center gap-1.5 cursor-pointer"
                         >
-                          <span>💳</span> Thanh toán ngay
+                          <span>⚡</span> Thanh toán VietQR
                         </button>
                         <button
                           onClick={() => setCancelModalId(item._id)}
@@ -214,9 +202,12 @@ const MyAppointment = () => {
                     )}
 
                     {item.payment && !item.isCompleted && !item.cancelled && (
-                      <div className="text-center py-2.5 px-4 bg-blue-50 border border-blue-200 rounded-xl">
-                        <span className="text-xs sm:text-sm text-blue-700 font-semibold">
+                      <div className="text-center py-2.5 px-3 bg-blue-50 border border-blue-200 rounded-xl">
+                        <span className="text-xs sm:text-sm text-blue-700 font-bold block">
                           ✔ Đã thanh toán viện phí
+                        </span>
+                        <span className="text-[11px] text-blue-500 mt-0.5 block">
+                          Phương thức: {item.paymentMethod || "VietQR"}
                         </span>
                       </div>
                     )}
@@ -232,7 +223,7 @@ const MyAppointment = () => {
                     {item.isCompleted && (
                       <div className="text-center py-2.5 px-4 bg-emerald-50 border border-emerald-200 rounded-xl">
                         <span className="text-xs sm:text-sm text-emerald-700 font-semibold">
-                          ✔ Đã hoàn tất buổi khám
+                          ✔ Đã hoàn tất ca khám
                         </span>
                       </div>
                     )}
@@ -243,6 +234,18 @@ const MyAppointment = () => {
           })}
         </div>
       )}
+
+      {/* VietQR Payment Modal */}
+      <VietQRModal
+        isOpen={Boolean(selectedAppointmentForPayment)}
+        appointment={selectedAppointmentForPayment}
+        onClose={() => setSelectedAppointmentForPayment(null)}
+        onPaymentSuccess={() => {
+          getUserAppointments();
+        }}
+        backendURL={backendURL}
+        token={token}
+      />
 
       {/* Confirmation Modal for Cancellation */}
       {cancelModalId && (
@@ -258,13 +261,13 @@ const MyAppointment = () => {
             <div className="flex items-center gap-3 pt-2">
               <button
                 onClick={() => setCancelModalId(null)}
-                className="flex-1 py-2.5 border border-gray-300 rounded-xl text-gray-700 font-medium text-sm hover:bg-gray-50"
+                className="flex-1 py-2.5 border border-gray-300 rounded-xl text-gray-700 font-medium text-sm hover:bg-gray-50 cursor-pointer"
               >
                 Giữ lại
               </button>
               <button
                 onClick={handleCancelAppointment}
-                className="flex-1 py-2.5 bg-red-600 hover:bg-red-700 text-white rounded-xl font-semibold text-sm shadow-xs"
+                className="flex-1 py-2.5 bg-red-600 hover:bg-red-700 text-white rounded-xl font-semibold text-sm shadow-xs cursor-pointer"
               >
                 Xác nhận hủy
               </button>

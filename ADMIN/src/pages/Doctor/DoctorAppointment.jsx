@@ -163,7 +163,7 @@ const DoctorAppointment = () => {
                               : "bg-amber-50 text-amber-700 border border-amber-200"
                           }`}
                         >
-                          {item.payment ? "Đã thanh toán online" : "Thu tiền mặt"}
+                          {item.payment ? (item.paymentMethod || "VietQR (Online)") : "Thu tiền mặt"}
                         </span>
                       </td>
                       <td className="py-4 px-4 text-xs font-medium text-gray-700">

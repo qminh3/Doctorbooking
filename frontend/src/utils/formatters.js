@@ -81,3 +81,21 @@ export const getAppointmentStatusInfo = (item) => {
     borderColor: "border-amber-200",
   };
 };
+
+// Cấu hình thông tin tài khoản VietQR Demo
+export const VIETQR_CONFIG = {
+  bankId: "MB",
+  bankName: "Ngân hàng Quân Đội (MB Bank)",
+  accountNo: "0333666888",
+  accountName: "PHONG KHAM BOOKINGDOCTOR",
+  template: "compact2",
+};
+
+// Hàm tạo URL mã VietQR động chuẩn Napas 24/7
+export const generateVietQRUrl = (amount, appointmentId) => {
+  const numericAmount = typeof amount === "number" ? amount : Number(amount) || 0;
+  const displayAmount = numericAmount < 1000 && numericAmount > 0 ? numericAmount * 1000 : numericAmount;
+  const addInfo = `BK ${appointmentId ? appointmentId.slice(-6).toUpperCase() : "TEST"}`;
+
+  return `https://img.vietqr.io/image/${VIETQR_CONFIG.bankId}-${VIETQR_CONFIG.accountNo}-${VIETQR_CONFIG.template}.png?amount=${displayAmount}&addInfo=${encodeURIComponent(addInfo)}&accountName=${encodeURIComponent(VIETQR_CONFIG.accountName)}`;
+};

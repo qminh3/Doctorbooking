@@ -82,3 +82,12 @@ export const getAppointmentStatusInfo = (item) => {
     borderColor: "border-amber-200",
   };
 };
+
+// Cấu hình VietQR Demo
+export const VIETQR_CONFIG = {
+  bankId: "MB",
+  bankName: "Ngân hàng Quân Đội (MB Bank)",
+  accountNo: "0333666888",
+  accountName: "PHONG KHAM BOOKINGDOCTOR",
+  template: "compact2",
+};

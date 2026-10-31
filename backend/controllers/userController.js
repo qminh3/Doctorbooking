@@ -266,10 +266,10 @@ const razorpayInstance = new Razorpay({
   key_secret: process.env.RAZORPAY_KEY_SECRET || "secret",
 });
 
-// Hoàn tất thanh toán
+// Hoàn tất thanh toán (VietQR Demo / Cổng thanh toán)
 const paymentComplete = async (req, res) => {
   try {
-    const { appointmentId } = req.body;
+    const { appointmentId, paymentMethod = "VietQR", transactionId } = req.body;
 
     const appointmentData = await appointmentModel.findById(appointmentId);
 
@@ -294,14 +294,22 @@ const paymentComplete = async (req, res) => {
       });
     }
 
+    const genTransactionId =
+      transactionId ||
+      `VQR${Date.now().toString().slice(-6)}${appointmentId.slice(-4).toUpperCase()}`;
+
     // Cập nhật trạng thái payment
     await appointmentModel.findByIdAndUpdate(appointmentId, {
       payment: true,
+      paymentMethod: paymentMethod,
+      paymentDate: Date.now(),
+      transactionId: genTransactionId,
     });
 
     return res.json({
       success: true,
-      message: "Thanh toán viện phí thành công!",
+      message: `Thanh toán viện phí qua ${paymentMethod} thành công!`,
+      transactionId: genTransactionId,
     });
   } catch (error) {
     console.error(error);

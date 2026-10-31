@@ -186,6 +186,11 @@ const AllApointments = () => {
                         >
                           {status.text}
                         </span>
+                        {item.payment && (
+                          <span className="block text-[11px] text-blue-600 font-medium mt-1">
+                            {item.paymentMethod || "VietQR"}
+                          </span>
+                        )}
                       </td>
                       <td className="py-4 px-4 text-center">
                         {!item.cancelled && !item.isCompleted ? (
