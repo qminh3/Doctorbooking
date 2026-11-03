@@ -25,7 +25,7 @@ const DoctorContextProvider = (props) => {
       );
       if (data.success) {
         setAppointments(data.appointments);
-        console.log("Appointments fetched:", data.appointments.reverse());
+        console.log("Appointments fetched:", data.appointments);
       } else {
         toast.error(data.message);
       }
@@ -33,6 +33,7 @@ const DoctorContextProvider = (props) => {
       console.error("Error fetching doctor's appointments:", error);
     }
   };
+
   const completeAppointment = async (appointmentId) => {
     try {
       const { data } = await axios.post(
@@ -52,6 +53,32 @@ const DoctorContextProvider = (props) => {
       console.error("Error completing doctor's appointments:", error);
     }
   };
+
+  // Lưu hồ sơ bệnh án, kết quả xét nghiệm, chẩn đoán và đơn thuốc
+  const saveMedicalRecord = async (appointmentId, medicalRecord, isCompleted = true) => {
+    try {
+      const { data } = await axios.post(
+        `${backendURL}/api/doctor/save-medical-record`,
+        { appointmentId, medicalRecord, isCompleted },
+        {
+          headers: { Authorization: `Bearer ${dToken}` },
+        }
+      );
+      if (data.success) {
+        toast.success(data.message);
+        getAppointments();
+        return true;
+      } else {
+        toast.error(data.message);
+        return false;
+      }
+    } catch (error) {
+      console.error("Error saving medical record:", error);
+      toast.error("Không thể lưu bệnh án. Vui lòng thử lại!");
+      return false;
+    }
+  };
+
   const cancelAppointment = async (appointmentId) => {
     try {
       const { data } = await axios.post(
@@ -78,7 +105,6 @@ const DoctorContextProvider = (props) => {
         headers: { Authorization: `Bearer ${dToken}` },
       });
       if (data.success) {
-        console.log("Dashboard data fetched:", data.dashData);
         setDashData(data.dashData);
       } else {
         toast.error(data.message);
@@ -92,13 +118,11 @@ const DoctorContextProvider = (props) => {
     try {
       const { data } = await axios.get(
         `${backendURL}/api/doctor/profile`,
-
         {
           headers: { Authorization: `Bearer ${dToken}` },
         }
       );
       if (data.success) {
-        console.log("Profile data fetched:", data.doctorData);
         setProfileData(data.doctorData);
       } else {
         toast.error(data.message);
@@ -116,6 +140,7 @@ const DoctorContextProvider = (props) => {
     setAppointments,
     getAppointments,
     completeAppointment,
+    saveMedicalRecord,
     cancelAppointment,
     getDashData,
     dashData,

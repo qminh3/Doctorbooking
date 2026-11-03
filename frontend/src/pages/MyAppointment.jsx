@@ -10,6 +10,7 @@ import {
   getAppointmentStatusInfo,
 } from "../utils/formatters";
 import VietQRModal from "../components/VietQRModal";
+import PrescriptionModal from "../components/PrescriptionModal";
 
 const MyAppointment = () => {
   const { backendURL, token, getDoctorsData } = useContext(AppContext);
@@ -19,6 +20,8 @@ const MyAppointment = () => {
   const [loading, setLoading] = useState(false);
   const [cancelModalId, setCancelModalId] = useState(null);
   const [selectedAppointmentForPayment, setSelectedAppointmentForPayment] =
+    useState(null);
+  const [selectedAppointmentForPrescription, setSelectedAppointmentForPrescription] =
     useState(null);
 
   const getUserAppointments = async () => {
@@ -81,7 +84,7 @@ const MyAppointment = () => {
       <div className="mb-8">
         <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Lịch Hẹn Của Tôi</h1>
         <p className="text-gray-500 text-sm mt-1">
-          Theo dõi trạng thái ca khám, quét mã VietQR thanh toán viện phí và quản lý thời gian khám bệnh.
+          Theo dõi trạng thái ca khám, thanh toán viện phí VietQR, xem kết quả xét nghiệm và đơn thuốc điện tử.
         </p>
       </div>
 
@@ -107,6 +110,13 @@ const MyAppointment = () => {
         <div className="space-y-4">
           {appointments.map((item, index) => {
             const status = getAppointmentStatusInfo(item);
+            const hasMedicalRecord =
+              item.medicalRecord &&
+              (item.medicalRecord.diagnosis ||
+                (item.medicalRecord.prescription &&
+                  item.medicalRecord.prescription.length > 0) ||
+                (item.medicalRecord.labTests &&
+                  item.medicalRecord.labTests.length > 0));
 
             return (
               <div
@@ -183,7 +193,7 @@ const MyAppointment = () => {
                   </div>
 
                   {/* Actions Column */}
-                  <div className="flex-shrink-0 flex flex-col justify-center gap-2 sm:min-w-[190px]">
+                  <div className="flex-shrink-0 flex flex-col justify-center gap-2 sm:min-w-[210px]">
                     {!item.cancelled && !item.isCompleted && !item.payment && (
                       <>
                         <button
@@ -220,7 +230,17 @@ const MyAppointment = () => {
                       </div>
                     )}
 
-                    {item.isCompleted && (
+                    {/* Medical Record / Prescription View Button */}
+                    {hasMedicalRecord && (
+                      <button
+                        onClick={() => setSelectedAppointmentForPrescription(item)}
+                        className="w-full px-4 py-2.5 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white text-xs sm:text-sm font-bold rounded-xl shadow-xs transition flex items-center justify-center gap-1.5 cursor-pointer animate-pulse-subtle"
+                      >
+                        <span>📄</span> Xem kết quả & Đơn thuốc
+                      </button>
+                    )}
+
+                    {item.isCompleted && !hasMedicalRecord && (
                       <div className="text-center py-2.5 px-4 bg-emerald-50 border border-emerald-200 rounded-xl">
                         <span className="text-xs sm:text-sm text-emerald-700 font-semibold">
                           ✔ Đã hoàn tất ca khám
@@ -245,6 +265,13 @@ const MyAppointment = () => {
         }}
         backendURL={backendURL}
         token={token}
+      />
+
+      {/* Prescription & Medical Record Modal */}
+      <PrescriptionModal
+        isOpen={Boolean(selectedAppointmentForPrescription)}
+        appointment={selectedAppointmentForPrescription}
+        onClose={() => setSelectedAppointmentForPrescription(null)}
       />
 
       {/* Confirmation Modal for Cancellation */}

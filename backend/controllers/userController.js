@@ -2,10 +2,10 @@ import validator from "validator";
 import bycrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import userrModel from "../models/userModel.js";
-import { v2 as cloudinary } from "cloudinary";
 import doctorModel from "../models/doctorModel.js";
 import appointmentModel from "../models/appointmentModel.js";
 import Razorpay from "razorpay";
+import { uploadImageBuffer } from "../utils/cloudinaryUploader.js";
 
 const userRegister = async (req, res) => {
   try {
@@ -121,10 +121,14 @@ const userUpdateProfile = async (req, res) => {
     });
 
     if (imageFile) {
-      const imageUpload = await cloudinary.uploader.upload(imageFile.path, {
-        resource_type: "image",
+      // Upload trực tiếp từ RAM buffer lên Cloudinary kèm nhận diện khuôn mặt & nén WebP
+      const imageUrl = await uploadImageBuffer(imageFile.buffer, {
+        folder: "booking_doctor/users",
+        transformation: [
+          { width: 500, height: 500, crop: "fill", gravity: "face" }, // Căn chỉnh trọng tâm khuôn mặt
+          { quality: "auto:good", fetch_format: "auto" },
+        ],
       });
-      const imageUrl = imageUpload.secure_url;
       await userrModel.findByIdAndUpdate(userId, { image: imageUrl });
     }
     res.json({ success: true, message: "Cập nhật hồ sơ thành công" });

@@ -1,6 +1,7 @@
 import React, { useContext, useEffect, useState } from "react";
 import { DoctorContext } from "../../context/DoctorContext";
 import { AppContext } from "../../context/AppContext";
+import MedicalRecordModal from "../../components/MedicalRecordModal";
 
 const DoctorAppointment = () => {
   const {
@@ -16,6 +17,8 @@ const DoctorAppointment = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [filterStatus, setFilterStatus] = useState("all");
   const [cancelModalId, setCancelModalId] = useState(null);
+  const [selectedAppointmentForMedical, setSelectedAppointmentForMedical] =
+    useState(null);
 
   useEffect(() => {
     if (dToken) {
@@ -57,7 +60,7 @@ const DoctorAppointment = () => {
             Danh Sách Lịch Khám Của Bác Sĩ
           </h1>
           <p className="text-gray-500 text-sm mt-1">
-            Theo dõi, tiếp nhận và hoàn tất các ca khám bệnh nhân đã đặt hẹn.
+            Tiếp nhận bệnh nhân, chỉ định xét nghiệm cận lâm sàng, chẩn đoán và kê đơn thuốc điều trị.
           </p>
         </div>
         <div className="bg-white px-4 py-2.5 rounded-xl border border-gray-200 shadow-xs flex items-center gap-2">
@@ -116,8 +119,8 @@ const DoctorAppointment = () => {
                 <th className="py-4 px-4">Hình thức thanh toán</th>
                 <th className="py-4 px-4">Thời gian khám</th>
                 <th className="py-4 px-4">Viện phí</th>
-                <th className="py-4 px-4">Trạng thái</th>
-                <th className="py-4 px-4 text-center">Xử lý</th>
+                <th className="py-4 px-4">Trạng thái & Bệnh án</th>
+                <th className="py-4 px-4 text-center min-w-[200px]">Xử lý chuyên môn</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100 text-sm">
@@ -130,6 +133,14 @@ const DoctorAppointment = () => {
               ) : (
                 filteredAppointments.map((item, index) => {
                   const status = getAppointmentStatusInfo(item);
+                  const hasMedicalRecord =
+                    item.medicalRecord &&
+                    (item.medicalRecord.diagnosis ||
+                      (item.medicalRecord.prescription &&
+                        item.medicalRecord.prescription.length > 0) ||
+                      (item.medicalRecord.labTests &&
+                        item.medicalRecord.labTests.length > 0));
+
                   return (
                     <tr key={item._id || index} className="hover:bg-gray-50 transition">
                       <td className="py-4 px-4 text-center text-xs text-gray-400 font-bold">
@@ -176,32 +187,56 @@ const DoctorAppointment = () => {
                         {formatCurrency(item.amount)}
                       </td>
                       <td className="py-4 px-4">
-                        <span
-                          className={`inline-block px-3 py-1 rounded-full text-xs font-semibold ${status.bgColor} ${status.textColor} border ${status.borderColor}`}
-                        >
-                          {status.text}
-                        </span>
+                        <div className="space-y-1">
+                          <span
+                            className={`inline-block px-3 py-1 rounded-full text-xs font-semibold ${status.bgColor} ${status.textColor} border ${status.borderColor}`}
+                          >
+                            {status.text}
+                          </span>
+                          {hasMedicalRecord && (
+                            <div className="flex items-center gap-1 text-[11px] font-semibold text-indigo-700 bg-indigo-50 border border-indigo-200 px-2 py-0.5 rounded-md w-fit">
+                              <span>📄</span> Có bệnh án & đơn thuốc
+                            </div>
+                          )}
+                        </div>
                       </td>
                       <td className="py-4 px-4 text-center">
                         {!item.cancelled && !item.isCompleted ? (
-                          <div className="flex items-center justify-center gap-2">
+                          <div className="flex items-center justify-center gap-1.5 flex-wrap">
+                            <button
+                              onClick={() => setSelectedAppointmentForMedical(item)}
+                              className="px-3 py-1.5 bg-gradient-to-r from-blue-600 to-[#5f6fff] hover:from-blue-700 hover:to-indigo-700 text-white rounded-lg text-xs font-bold transition shadow-xs flex items-center gap-1 cursor-pointer"
+                              title="Chỉ định xét nghiệm, chẩn đoán và kê đơn thuốc"
+                            >
+                              <span>🩺</span> Khám & Kê đơn
+                            </button>
                             <button
                               onClick={() => completeAppointment(item._id)}
-                              className="px-2.5 py-1 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200 rounded-lg text-xs font-bold transition cursor-pointer"
-                              title="Xác nhận hoàn thành khám"
+                              className="px-2.5 py-1.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200 rounded-lg text-xs font-bold transition cursor-pointer"
+                              title="Xác nhận hoàn thành khám nhanh"
                             >
-                              ✔ Khám xong
+                              ✔ Xong
                             </button>
                             <button
                               onClick={() => setCancelModalId(item._id)}
-                              className="px-2.5 py-1 text-red-600 hover:bg-red-50 border border-red-200 rounded-lg text-xs font-medium transition cursor-pointer"
+                              className="px-2 py-1.5 text-red-600 hover:bg-red-50 border border-red-200 rounded-lg text-xs font-medium transition cursor-pointer"
                               title="Hủy lịch hẹn"
                             >
                               Hủy
                             </button>
                           </div>
+                        ) : item.isCompleted ? (
+                          <div className="flex items-center justify-center gap-2">
+                            <button
+                              onClick={() => setSelectedAppointmentForMedical(item)}
+                              className="px-3 py-1.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 rounded-lg text-xs font-bold transition flex items-center gap-1 cursor-pointer"
+                              title="Xem lại hoặc cập nhật hồ sơ bệnh án"
+                            >
+                              <span>📄</span> Hồ sơ bệnh án
+                            </button>
+                          </div>
                         ) : (
-                          <span className="text-xs text-gray-400">Đã chốt</span>
+                          <span className="text-xs text-gray-400 font-medium">Đã hủy</span>
                         )}
                       </td>
                     </tr>
@@ -212,6 +247,13 @@ const DoctorAppointment = () => {
           </table>
         </div>
       </div>
+
+      {/* Medical Examination & Prescription Modal */}
+      <MedicalRecordModal
+        isOpen={Boolean(selectedAppointmentForMedical)}
+        appointment={selectedAppointmentForMedical}
+        onClose={() => setSelectedAppointmentForMedical(null)}
+      />
 
       {/* Confirmation Modal */}
       {cancelModalId && (
@@ -227,13 +269,13 @@ const DoctorAppointment = () => {
             <div className="flex items-center gap-3 pt-2">
               <button
                 onClick={() => setCancelModalId(null)}
-                className="flex-1 py-2.5 border border-gray-300 rounded-xl text-gray-700 font-medium text-sm hover:bg-gray-50"
+                className="flex-1 py-2.5 border border-gray-300 rounded-xl text-gray-700 font-medium text-sm hover:bg-gray-50 cursor-pointer"
               >
                 Đóng
               </button>
               <button
                 onClick={handleConfirmCancel}
-                className="flex-1 py-2.5 bg-red-600 hover:bg-red-700 text-white rounded-xl font-semibold text-sm shadow-xs"
+                className="flex-1 py-2.5 bg-red-600 hover:bg-red-700 text-white rounded-xl font-semibold text-sm shadow-xs cursor-pointer"
               >
                 Hủy ca khám
               </button>

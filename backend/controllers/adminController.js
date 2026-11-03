@@ -1,10 +1,10 @@
 import validator from "validator";
 import bycrypt from "bcrypt";
-import { v2 as cloudinary } from "cloudinary";
 import doctorModel from "../models/doctorModel.js";
 import jwt from "jsonwebtoken";
 import appointmentModel from "../models/appointmentModel.js";
 import userrModel from "../models/userModel.js";
+import { uploadImageBuffer } from "../utils/cloudinaryUploader.js";
 
 // Thêm bác sĩ mới
 const addDoctor = async (req, res) => {
@@ -57,11 +57,15 @@ const addDoctor = async (req, res) => {
 
     const salt = await bycrypt.genSalt(10);
     const hashedPassword = await bycrypt.hash(password, salt);
-    const imageUpload = await cloudinary.uploader.upload(imageFile.path, {
-      resource_type: "image",
-    });
 
-    const imageUrl = imageUpload.secure_url;
+    // Upload trực tiếp từ RAM buffer lên Cloudinary kèm nén WebP & tối ưu kích thước
+    const imageUrl = await uploadImageBuffer(imageFile.buffer, {
+      folder: "booking_doctor/doctors",
+      transformation: [
+        { width: 800, height: 800, crop: "limit" },
+        { quality: "auto:good", fetch_format: "auto" },
+      ],
+    });
     let parsedAddress = address;
     if (typeof address === "string") {
       try {

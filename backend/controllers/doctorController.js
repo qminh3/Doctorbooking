@@ -99,6 +99,61 @@ const appointmentComplete = async (req, res) => {
   }
 };
 
+// Lưu thông tin khám bệnh, cận lâm sàng, chẩn đoán và đơn thuốc
+const saveMedicalRecord = async (req, res) => {
+  try {
+    const { docId, appointmentId, medicalRecord, isCompleted = true } = req.body;
+    
+    if (!appointmentId) {
+      return res.status(400).json({
+        success: false,
+        message: "Thiếu mã lịch hẹn khám",
+      });
+    }
+
+    const appointmentData = await appointmentModel.findById(appointmentId);
+    if (!appointmentData) {
+      return res.status(404).json({
+        success: false,
+        message: "Không tìm thấy lịch hẹn khám này",
+      });
+    }
+
+    if (appointmentData.docId.toString() !== docId.toString()) {
+      return res.status(403).json({
+        success: false,
+        message: "Bạn không có quyền cập nhật bệnh án cho ca khám này",
+      });
+    }
+
+    const updateData = {
+      medicalRecord: {
+        ...medicalRecord,
+        updatedAt: Date.now(),
+      },
+    };
+
+    if (isCompleted) {
+      updateData.isCompleted = true;
+    }
+
+    const updated = await appointmentModel.findByIdAndUpdate(
+      appointmentId,
+      updateData,
+      { new: true }
+    );
+
+    return res.json({
+      success: true,
+      message: "Đã lưu hồ sơ bệnh án và đơn thuốc thành công!",
+      appointment: updated,
+    });
+  } catch (error) {
+    console.error("Lỗi lưu hồ sơ bệnh án:", error);
+    return res.status(500).json({ success: false, message: "Lỗi máy chủ nội bộ" });
+  }
+};
+
 // Hủy lịch hẹn từ phía Bác sĩ
 const appointmentCancel = async (req, res) => {
   try {
@@ -206,6 +261,7 @@ export {
   doctorlogin,
   appointmentsDoctor,
   appointmentComplete,
+  saveMedicalRecord,
   appointmentCancel,
   doctorDashboard,
   updateDoctorProfile,

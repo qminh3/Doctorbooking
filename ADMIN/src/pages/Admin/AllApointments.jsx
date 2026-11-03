@@ -186,6 +186,11 @@ const AllApointments = () => {
                         >
                           {status.text}
                         </span>
+                        {item.medicalRecord && (item.medicalRecord.diagnosis || item.medicalRecord.prescription?.length > 0) && (
+                          <span className="block text-[11px] text-indigo-700 font-semibold mt-1">
+                            🩺 Đã có bệnh án
+                          </span>
+                        )}
                         {item.payment && (
                           <span className="block text-[11px] text-blue-600 font-medium mt-1">
                             {item.paymentMethod || "VietQR"}
