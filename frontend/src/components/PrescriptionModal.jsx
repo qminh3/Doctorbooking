@@ -28,20 +28,20 @@ const PrescriptionModal = ({ isOpen, appointment, onClose }) => {
   };
 
   return (
-    <div className="fixed inset-0 z-50 overflow-y-auto bg-black/60 backdrop-blur-xs flex items-center justify-center p-3 sm:p-5 print:p-0 print:bg-white print:fixed print:inset-0">
+    <div className="fixed inset-0 z-50 overflow-y-auto bg-black/50 backdrop-blur-xs flex items-center justify-center p-3 sm:p-5 print:p-0 print:bg-white print:fixed print:inset-0">
       {/* Container */}
-      <div className="bg-white rounded-2xl w-full max-w-4xl shadow-2xl overflow-hidden flex flex-col max-h-[92vh] print:max-h-none print:shadow-none print:w-full print:rounded-none">
-        {/* Header - Not printed in paper if customized */}
-        <div className="bg-gradient-to-r from-emerald-600 via-teal-600 to-[#5f6fff] text-white p-4 sm:p-5 flex items-center justify-between print:hidden">
+      <div className="bg-white rounded-2xl w-full max-w-4xl shadow-xl border border-gray-200 overflow-hidden flex flex-col max-h-[92vh] print:max-h-none print:shadow-none print:w-full print:rounded-none">
+        {/* Clean Header - No gradients */}
+        <div className="bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between print:hidden">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center text-2xl shadow-inner">
+            <div className="w-10 h-10 rounded-xl bg-[#f0f3ff] text-[#5f6fff] flex items-center justify-center text-lg font-bold">
               📄
             </div>
             <div>
-              <h2 className="text-lg sm:text-xl font-bold">
+              <h2 className="text-base sm:text-lg font-bold text-gray-900">
                 Phiếu Khám Bệnh & Đơn Thuốc Điện Tử
               </h2>
-              <p className="text-emerald-100 text-xs">
+              <p className="text-gray-500 text-xs">
                 Mã ca khám: #BD-{appointment._id.slice(-6).toUpperCase()} • Ngày:{" "}
                 {formatSlotDate(appointment.slotDate)}
               </p>
@@ -50,13 +50,13 @@ const PrescriptionModal = ({ isOpen, appointment, onClose }) => {
           <div className="flex items-center gap-2">
             <button
               onClick={handlePrint}
-              className="px-3.5 py-1.5 bg-white text-emerald-700 hover:bg-emerald-50 rounded-xl text-xs font-bold transition flex items-center gap-1.5 shadow-sm cursor-pointer"
+              className="px-3.5 py-1.5 bg-[#5f6fff] hover:bg-[#4d5de6] text-white rounded-lg text-xs font-semibold transition flex items-center gap-1.5 shadow-xs cursor-pointer"
             >
-              <span>🖨️</span> In đơn thuốc
+              In đơn thuốc
             </button>
             <button
               onClick={onClose}
-              className="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white text-lg transition cursor-pointer"
+              className="w-8 h-8 rounded-lg text-gray-400 hover:text-gray-700 hover:bg-gray-100 flex items-center justify-center text-lg transition cursor-pointer"
             >
               ✕
             </button>
@@ -69,13 +69,13 @@ const PrescriptionModal = ({ isOpen, appointment, onClose }) => {
           className="flex-1 overflow-y-auto p-6 sm:p-8 space-y-6 text-gray-800 print:overflow-visible print:p-6"
         >
           {/* Clinic Brand & Header */}
-          <div className="border-b-2 border-gray-200 pb-5 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+          <div className="border-b border-gray-200 pb-5 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
             <div>
               <div className="flex items-center gap-2">
-                <span className="text-2xl font-black text-transparent bg-clip-text bg-gradient-to-r from-[#5f6fff] to-emerald-600">
+                <span className="text-2xl font-black text-[#5f6fff] tracking-tight">
                   BookingDoctor
                 </span>
-                <span className="bg-emerald-100 text-emerald-800 text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider">
+                <span className="bg-[#f0f3ff] text-[#5f6fff] text-[10px] font-semibold px-2 py-0.5 rounded border border-[#d6e0ff] uppercase tracking-wider">
                   Hệ Thống Y Tế Chuẩn Hóa
                 </span>
               </div>
@@ -92,35 +92,35 @@ const PrescriptionModal = ({ isOpen, appointment, onClose }) => {
 
             <div className="text-left sm:text-right">
               <span className="text-xs font-mono text-gray-400 block">
-                MÃ HỒ SƠ BỆNH ÁN
+                MÃ HỒ SƠ
               </span>
               <span className="text-base font-bold font-mono text-gray-900 block">
                 #BD-{appointment._id.slice(-6).toUpperCase()}
               </span>
-              <span className="text-xs text-emerald-700 font-semibold block mt-0.5">
+              <span className="text-xs text-gray-500 block mt-0.5">
                 Ngày khám: {formatSlotDate(appointment.slotDate)} ({appointment.slotTime})
               </span>
             </div>
           </div>
 
-          <div className="text-center py-2">
-            <h1 className="text-xl sm:text-2xl font-black tracking-wide text-gray-900 uppercase">
+          <div className="text-center py-1">
+            <h1 className="text-lg sm:text-xl font-bold tracking-wide text-gray-900 uppercase">
               PHIẾU KẾT QUẢ KHÁM BỆNH & ĐƠN THUỐC
             </h1>
-            <p className="text-xs text-gray-500 italic">
+            <p className="text-xs text-gray-400 mt-0.5">
               (Bác sĩ chẩn đoán dựa trên thăm khám lâm sàng và kết quả cận lâm sàng)
             </p>
           </div>
 
           {/* Patient & Doctor Two Columns Info */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 bg-gray-50/80 p-4 rounded-xl border border-gray-200 text-xs sm:text-sm">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 bg-gray-50/70 p-4 rounded-xl border border-gray-200 text-xs sm:text-sm">
             <div className="space-y-1.5 border-b sm:border-b-0 sm:border-r border-gray-200 pb-3 sm:pb-0 sm:pr-4">
-              <p className="font-bold text-gray-900 uppercase tracking-wide text-xs text-[#5f6fff]">
+              <p className="font-semibold text-gray-500 uppercase tracking-wide text-xs">
                 Thông tin người bệnh:
               </p>
               <p>
                 <span className="text-gray-500">Họ và tên:</span>{" "}
-                <strong className="text-gray-900 text-base">{userData.name}</strong>
+                <strong className="text-gray-900 text-sm sm:text-base">{userData.name}</strong>
               </p>
               <p>
                 <span className="text-gray-500">Độ tuổi:</span>{" "}
@@ -142,16 +142,16 @@ const PrescriptionModal = ({ isOpen, appointment, onClose }) => {
             </div>
 
             <div className="space-y-1.5 sm:pl-4">
-              <p className="font-bold text-gray-900 uppercase tracking-wide text-xs text-[#5f6fff]">
-                Bác sĩ điều trị:
+              <p className="font-semibold text-gray-500 uppercase tracking-wide text-xs">
+                Bác sĩ phụ trách:
               </p>
               <p>
                 <span className="text-gray-500">Bác sĩ khám:</span>{" "}
-                <strong className="text-gray-900 text-base">{docData.name}</strong>
+                <strong className="text-gray-900 text-sm sm:text-base">{docData.name}</strong>
               </p>
               <p>
                 <span className="text-gray-500">Chuyên khoa:</span>{" "}
-                <strong className="text-emerald-700">
+                <strong className="text-[#5f6fff]">
                   {getSpecialityName(docData.speciality)}
                 </strong>
               </p>
@@ -164,12 +164,12 @@ const PrescriptionModal = ({ isOpen, appointment, onClose }) => {
 
           {/* Section 1: Clinical Symptoms & Vitals */}
           <div className="space-y-2">
-            <h3 className="text-sm font-bold text-gray-900 uppercase tracking-wider flex items-center gap-2 border-l-4 border-[#5f6fff] pl-2.5">
-              1. Khám Lâm Sàng & Chỉ Số Sinh Tồn
+            <h3 className="text-xs font-bold text-gray-900 uppercase tracking-wider flex items-center gap-2 border-l-3 border-[#5f6fff] pl-2.5">
+              1. Khám Lâm Sàng & Sinh Hiệu
             </h3>
             <div className="bg-white p-3.5 rounded-xl border border-gray-200 space-y-2 text-xs sm:text-sm">
               <p>
-                <span className="font-semibold text-gray-700">Triệu chứng ban đầu:</span>{" "}
+                <span className="font-medium text-gray-600">Triệu chứng ban đầu:</span>{" "}
                 <span className="text-gray-800">
                   {medicalRecord.symptoms || "Không ghi nhận bất thường đặc biệt."}
                 </span>
@@ -209,23 +209,23 @@ const PrescriptionModal = ({ isOpen, appointment, onClose }) => {
           {/* Section 2: Laboratory & Clinical Tests */}
           {labTests.length > 0 && (
             <div className="space-y-2">
-              <h3 className="text-sm font-bold text-gray-900 uppercase tracking-wider flex items-center gap-2 border-l-4 border-indigo-600 pl-2.5">
-                2. Chỉ Định Xét Nghiệm & Kết Quả Cận Lâm Sàng
+              <h3 className="text-xs font-bold text-gray-900 uppercase tracking-wider flex items-center gap-2 border-l-3 border-[#5f6fff] pl-2.5">
+                2. Chỉ Định & Kết Quả Xét Nghiệm
               </h3>
               <div className="overflow-x-auto rounded-xl border border-gray-200">
-                <table className="w-full text-left border-collapse text-xs sm:text-sm">
+                <table className="w-full text-left border-collapse text-xs">
                   <thead>
-                    <tr className="bg-gray-50 border-b border-gray-200 text-gray-600">
+                    <tr className="bg-gray-50/80 border-b border-gray-200 text-gray-600">
                       <th className="py-2.5 px-3 w-10 text-center font-bold">#</th>
                       <th className="py-2.5 px-3 font-bold">Tên xét nghiệm</th>
-                      <th className="py-2.5 px-3 font-bold">Kết quả & Đánh giá cận lâm sàng</th>
+                      <th className="py-2.5 px-3 font-bold">Kết quả cận lâm sàng</th>
                       <th className="py-2.5 px-3 w-28 text-center font-bold">Trạng thái</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-100">
                     {labTests.map((test, idx) => (
                       <tr key={idx} className="hover:bg-gray-50/50">
-                        <td className="py-2.5 px-3 text-center text-gray-400 font-bold">
+                        <td className="py-2.5 px-3 text-center text-gray-400 font-medium">
                           {idx + 1}
                         </td>
                         <td className="py-2.5 px-3 font-semibold text-gray-900">
@@ -236,10 +236,10 @@ const PrescriptionModal = ({ isOpen, appointment, onClose }) => {
                         </td>
                         <td className="py-2.5 px-3 text-center">
                           <span
-                            className={`inline-block px-2 py-0.5 rounded-full text-[11px] font-bold ${
+                            className={`inline-block px-2 py-0.5 rounded text-[11px] font-medium ${
                               test.status === "Completed"
-                                ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
-                                : "bg-amber-50 text-amber-700 border border-amber-200"
+                                ? "bg-emerald-50 text-emerald-700"
+                                : "bg-amber-50 text-amber-700"
                             }`}
                           >
                             {test.status === "Completed" ? "✔ Có kết quả" : "⏳ Chờ kết quả"}
@@ -255,14 +255,14 @@ const PrescriptionModal = ({ isOpen, appointment, onClose }) => {
 
           {/* Section 3: Clinical Diagnosis */}
           <div className="space-y-2">
-            <h3 className="text-sm font-bold text-gray-900 uppercase tracking-wider flex items-center gap-2 border-l-4 border-emerald-600 pl-2.5">
+            <h3 className="text-xs font-bold text-gray-900 uppercase tracking-wider flex items-center gap-2 border-l-3 border-[#5f6fff] pl-2.5">
               3. Kết Luận Chẩn Đoán Của Bác Sĩ
             </h3>
-            <div className="p-4 bg-emerald-50/60 rounded-xl border border-emerald-200 text-xs sm:text-sm">
+            <div className="p-3.5 bg-gray-50/70 rounded-xl border border-gray-200 text-xs sm:text-sm">
               <span className="text-gray-500 font-medium block mb-1">
                 Chẩn đoán xác định:
               </span>
-              <p className="text-base sm:text-lg font-bold text-emerald-900 leading-snug">
+              <p className="text-sm sm:text-base font-bold text-gray-900 leading-snug">
                 {medicalRecord.diagnosis || "Chưa ghi nhận chẩn đoán xác định."}
               </p>
             </div>
@@ -270,7 +270,7 @@ const PrescriptionModal = ({ isOpen, appointment, onClose }) => {
 
           {/* Section 4: Prescription Medication Table */}
           <div className="space-y-2">
-            <h3 className="text-sm font-bold text-gray-900 uppercase tracking-wider flex items-center gap-2 border-l-4 border-blue-600 pl-2.5">
+            <h3 className="text-xs font-bold text-gray-900 uppercase tracking-wider flex items-center gap-2 border-l-3 border-[#5f6fff] pl-2.5">
               4. Đơn Thuốc Điều Trị
             </h3>
             {prescription.length === 0 ? (
@@ -281,7 +281,7 @@ const PrescriptionModal = ({ isOpen, appointment, onClose }) => {
               <div className="overflow-x-auto rounded-xl border border-gray-200">
                 <table className="w-full text-left border-collapse text-xs sm:text-sm">
                   <thead>
-                    <tr className="bg-gray-50 border-b border-gray-200 text-gray-600">
+                    <tr className="bg-gray-50/80 border-b border-gray-200 text-gray-600">
                       <th className="py-2.5 px-3 w-10 text-center font-bold">STT</th>
                       <th className="py-2.5 px-3 font-bold">Tên thuốc & Hàm lượng</th>
                       <th className="py-2.5 px-3 font-bold">Số lượng</th>
@@ -291,11 +291,11 @@ const PrescriptionModal = ({ isOpen, appointment, onClose }) => {
                   <tbody className="divide-y divide-gray-100">
                     {prescription.map((med, idx) => (
                       <tr key={idx} className="hover:bg-gray-50/50">
-                        <td className="py-3 px-3 text-center text-gray-400 font-bold">
+                        <td className="py-2.5 px-3 text-center text-gray-400 font-medium">
                           {idx + 1}
                         </td>
-                        <td className="py-3 px-3">
-                          <p className="font-bold text-gray-900 text-sm">
+                        <td className="py-2.5 px-3">
+                          <p className="font-semibold text-gray-900 text-xs sm:text-sm">
                             {med.medicineName}
                           </p>
                           {med.dosage && (
@@ -304,13 +304,10 @@ const PrescriptionModal = ({ isOpen, appointment, onClose }) => {
                             </span>
                           )}
                         </td>
-                        <td className="py-3 px-3 whitespace-nowrap">
-                          <span className="font-bold text-emerald-700 text-sm">
-                            {med.quantity}
-                          </span>{" "}
-                          <span className="text-xs text-gray-600">{med.unit || "Viên"}</span>
+                        <td className="py-2.5 px-3 whitespace-nowrap text-xs font-semibold text-gray-800">
+                          {med.quantity} {med.unit || "Viên"}
                         </td>
-                        <td className="py-3 px-3 text-xs sm:text-sm text-gray-800 font-medium">
+                        <td className="py-2.5 px-3 text-xs text-gray-700 font-medium">
                           {med.usage || "Dùng theo chỉ dẫn của bác sĩ hoặc dược sĩ."}
                         </td>
                       </tr>
@@ -323,21 +320,21 @@ const PrescriptionModal = ({ isOpen, appointment, onClose }) => {
 
           {/* Section 5: Doctor's Advice & Signature */}
           <div className="space-y-2">
-            <h3 className="text-sm font-bold text-gray-900 uppercase tracking-wider flex items-center gap-2 border-l-4 border-amber-500 pl-2.5">
-              5. Lời Dặn Của Bác Sĩ & Lịch Hẹn Tái Khám
+            <h3 className="text-xs font-bold text-gray-900 uppercase tracking-wider flex items-center gap-2 border-l-3 border-[#5f6fff] pl-2.5">
+              5. Lời Dặn Của Bác Sĩ & Hẹn Tái Khám
             </h3>
-            <div className="p-4 bg-amber-50/60 rounded-xl border border-amber-200 text-xs sm:text-sm space-y-2">
+            <div className="p-3.5 bg-gray-50/70 rounded-xl border border-gray-200 text-xs space-y-1.5">
               <p>
-                <span className="font-bold text-amber-900">Lời dặn:</span>{" "}
+                <span className="font-semibold text-gray-700">Lời dặn:</span>{" "}
                 <span className="text-gray-800">
                   {medicalRecord.advice ||
-                    "Uống thuốc đầy đủ đúng giờ, nghỉ ngơi hợp lý, kiêng đồ kích thích và tái khám nếu có triệu chứng bất thường."}
+                    "Uống thuốc đầy đủ đúng giờ, nghỉ ngơi hợp lý và tái khám nếu có triệu chứng bất thường."}
                 </span>
               </p>
               {medicalRecord.followUpDate && (
-                <p className="pt-2 border-t border-amber-100">
-                  <span className="font-bold text-amber-900">Lịch hẹn tái khám:</span>{" "}
-                  <strong className="text-blue-700">{medicalRecord.followUpDate}</strong>
+                <p className="pt-1.5 border-t border-gray-200">
+                  <span className="font-semibold text-gray-700">Lịch hẹn tái khám:</span>{" "}
+                  <strong className="text-[#5f6fff]">{medicalRecord.followUpDate}</strong>
                 </p>
               )}
             </div>
@@ -348,7 +345,7 @@ const PrescriptionModal = ({ isOpen, appointment, onClose }) => {
             <div className="space-y-1">
               <p className="font-semibold text-gray-600">Người bệnh / Thân nhân</p>
               <p className="text-[11px] text-gray-400 italic">(Ký và ghi rõ họ tên)</p>
-              <div className="h-16"></div>
+              <div className="h-14"></div>
               <p className="font-bold text-gray-800">{userData.name}</p>
             </div>
 
@@ -358,8 +355,8 @@ const PrescriptionModal = ({ isOpen, appointment, onClose }) => {
               </p>
               <p className="font-semibold text-gray-600">Bác sĩ điều trị</p>
               <p className="text-[11px] text-gray-400 italic">(Đã ký điện tử)</p>
-              <div className="h-16 flex items-center justify-center">
-                <span className="text-emerald-600 font-mono font-bold text-sm tracking-wider border border-emerald-300 bg-emerald-50 px-2 py-0.5 rounded">
+              <div className="h-14 flex items-center justify-center">
+                <span className="text-[#5f6fff] font-mono font-bold text-xs tracking-wider border border-[#d6e0ff] bg-[#f0f3ff] px-2 py-0.5 rounded">
                   ✔ ELECTRONIC SIGNED
                 </span>
               </div>
@@ -370,19 +367,19 @@ const PrescriptionModal = ({ isOpen, appointment, onClose }) => {
 
         {/* Modal Bottom Footer */}
         <div className="p-4 bg-gray-50 border-t border-gray-200 flex items-center justify-between print:hidden">
-          <p className="text-xs text-gray-500">
-            Phiếu khám & Đơn thuốc được lưu trữ vĩnh viễn trên hệ thống BookingDoctor.
+          <p className="text-xs text-gray-400">
+            Hồ sơ đơn thuốc điện tử BookingDoctor.
           </p>
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2.5">
             <button
               onClick={handlePrint}
-              className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs sm:text-sm font-bold shadow-xs transition flex items-center gap-1.5 cursor-pointer"
+              className="px-4 py-2 bg-[#5f6fff] hover:bg-[#4d5de6] text-white rounded-xl text-xs font-semibold shadow-xs transition cursor-pointer"
             >
-              <span>🖨️</span> In đơn thuốc
+              In đơn thuốc
             </button>
             <button
               onClick={onClose}
-              className="px-4 py-2 border border-gray-300 hover:bg-gray-100 text-gray-700 rounded-xl text-xs sm:text-sm font-semibold transition cursor-pointer"
+              className="px-4 py-2 border border-gray-200 hover:bg-gray-100 text-gray-700 rounded-xl text-xs font-medium transition cursor-pointer"
             >
               Đóng
             </button>

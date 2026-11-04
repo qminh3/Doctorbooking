@@ -39,37 +39,19 @@ const Navbar = () => {
             </div>
 
             <div className="flex items-center">
-              <div
-                className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold ${
-                  aToken
-                    ? "bg-blue-50 text-blue-700 border border-blue-200"
-                    : "bg-emerald-50 text-emerald-700 border border-emerald-200"
-                }`}
-              >
-                <span
-                  className={`w-2 h-2 rounded-full mr-2 ${
-                    aToken ? "bg-blue-500" : "bg-emerald-500"
-                  } animate-pulse`}
-                ></span>
+              <div className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-[#f0f3ff] text-[#5f6fff] border border-[#d6e0ff]">
+                <span className="w-1.5 h-1.5 rounded-full mr-2 bg-[#5f6fff]"></span>
                 {userRoleTitle} Panel
               </div>
             </div>
           </div>
 
-          <div className="flex items-center gap-4">
-            <div className="hidden sm:flex items-center gap-2 text-xs text-gray-500">
-              <span>Trạng thái:</span>
-              <span className="font-semibold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-md">
-                Đang trực tuyến
-              </span>
-            </div>
-
+          <div className="flex items-center gap-3">
             <button
               onClick={logout}
-              className="bg-red-50 hover:bg-red-100 text-red-600 hover:text-red-700 text-xs sm:text-sm font-semibold px-4 py-2 rounded-xl transition cursor-pointer flex items-center gap-1.5 border border-red-200"
+              className="border border-gray-200 hover:border-gray-300 text-gray-600 hover:text-gray-900 text-xs font-medium px-3.5 py-1.5 rounded-lg transition cursor-pointer"
             >
-              <span>🚪</span>
-              <span>Đăng xuất</span>
+              Đăng xuất
             </button>
           </div>
         </div>

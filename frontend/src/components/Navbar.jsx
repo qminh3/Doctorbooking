@@ -88,25 +88,25 @@ const Navbar = () => {
 
             {/* Dropdown Menu */}
             <div className="absolute top-0 right-0 pt-14 text-sm font-medium text-gray-700 z-30 hidden group-hover:block">
-              <div className="min-w-52 bg-white rounded-xl shadow-xl border border-gray-100 flex flex-col p-2 space-y-1">
+              <div className="min-w-48 bg-white rounded-xl shadow-lg border border-gray-200/80 flex flex-col p-1.5 space-y-0.5">
                 <button
                   onClick={() => navigate("/my-profile")}
-                  className="flex items-center gap-2 px-4 py-2.5 rounded-lg hover:bg-gray-50 text-left transition"
+                  className="px-3.5 py-2 text-xs font-medium text-gray-700 rounded-lg hover:bg-gray-50 text-left transition cursor-pointer"
                 >
-                  <span>👤</span> Hồ sơ cá nhân
+                  Hồ sơ cá nhân
                 </button>
                 <button
                   onClick={() => navigate("/my-appointments")}
-                  className="flex items-center gap-2 px-4 py-2.5 rounded-lg hover:bg-gray-50 text-left transition"
+                  className="px-3.5 py-2 text-xs font-medium text-gray-700 rounded-lg hover:bg-gray-50 text-left transition cursor-pointer"
                 >
-                  <span>📅</span> Lịch hẹn của tôi
+                  Lịch hẹn của tôi
                 </button>
                 <hr className="my-1 border-gray-100" />
                 <button
                   onClick={logout}
-                  className="flex items-center gap-2 px-4 py-2.5 rounded-lg hover:bg-red-50 text-red-600 text-left transition"
+                  className="px-3.5 py-2 text-xs font-medium text-rose-600 rounded-lg hover:bg-rose-50 text-left transition cursor-pointer"
                 >
-                  <span>🚪</span> Đăng xuất
+                  Đăng xuất
                 </button>
               </div>
             </div>

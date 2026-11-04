@@ -63,11 +63,9 @@ const Sidebar = () => {
               <NavLink
                 to={item.to}
                 className={({ isActive }) =>
-                  `flex items-center gap-3.5 py-3 px-4 rounded-xl transition-all font-medium text-sm ${
+                  `flex items-center gap-3.5 py-2.5 px-3.5 rounded-xl transition-all font-medium text-sm ${
                     isActive
-                      ? aToken
-                        ? "bg-blue-50 text-blue-700 shadow-xs font-semibold"
-                        : "bg-emerald-50 text-emerald-700 shadow-xs font-semibold"
+                      ? "bg-[#f0f3ff] text-[#5f6fff] font-semibold"
                       : "text-gray-600 hover:text-gray-900 hover:bg-gray-50"
                   }`
                 }

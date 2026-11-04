@@ -182,17 +182,18 @@ const AllApointments = () => {
                       </td>
                       <td className="py-4 px-4">
                         <span
-                          className={`inline-block px-3 py-1 rounded-full text-xs font-semibold ${status.bgColor} ${status.textColor} border ${status.borderColor}`}
+                          className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-medium ${status.bgColor} ${status.textColor} border ${status.borderColor}`}
                         >
+                          <span className="w-1.5 h-1.5 rounded-full bg-current"></span>
                           {status.text}
                         </span>
                         {item.medicalRecord && (item.medicalRecord.diagnosis || item.medicalRecord.prescription?.length > 0) && (
-                          <span className="block text-[11px] text-indigo-700 font-semibold mt-1">
-                            🩺 Đã có bệnh án
+                          <span className="block text-[11px] text-[#5f6fff] font-medium mt-1">
+                            Đã có bệnh án
                           </span>
                         )}
                         {item.payment && (
-                          <span className="block text-[11px] text-blue-600 font-medium mt-1">
+                          <span className="block text-[11px] text-gray-400 font-medium mt-0.5">
                             {item.paymentMethod || "VietQR"}
                           </span>
                         )}
@@ -201,12 +202,12 @@ const AllApointments = () => {
                         {!item.cancelled && !item.isCompleted ? (
                           <button
                             onClick={() => setCancelModalId(item._id)}
-                            className="text-xs text-red-600 hover:text-red-700 font-semibold px-2.5 py-1 rounded-lg border border-red-200 hover:bg-red-50 transition cursor-pointer"
+                            className="text-xs text-gray-400 hover:text-rose-600 font-medium px-2 py-1 rounded transition cursor-pointer"
                           >
                             Hủy
                           </button>
                         ) : (
-                          <span className="text-xs text-gray-400">--</span>
+                          <span className="text-xs text-gray-300">--</span>
                         )}
                       </td>
                     </tr>

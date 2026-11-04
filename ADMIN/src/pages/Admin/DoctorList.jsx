@@ -114,7 +114,7 @@ const DoctorList = () => {
               className="bg-white rounded-2xl border border-gray-200 shadow-xs hover:shadow-lg transition-all duration-300 overflow-hidden flex flex-col justify-between"
             >
               <div>
-                <div className="relative aspect-4/3 bg-gradient-to-b from-blue-50 to-indigo-50/30 overflow-hidden">
+                <div className="relative aspect-4/3 bg-slate-50 overflow-hidden">
                   <img
                     src={item.image}
                     alt={item.name}

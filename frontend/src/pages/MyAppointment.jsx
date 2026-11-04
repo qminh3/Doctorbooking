@@ -198,13 +198,13 @@ const MyAppointment = () => {
                       <>
                         <button
                           onClick={() => setSelectedAppointmentForPayment(item)}
-                          className="w-full px-4 py-2.5 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white text-xs sm:text-sm font-semibold rounded-xl shadow-xs transition flex items-center justify-center gap-1.5 cursor-pointer"
+                          className="w-full px-4 py-2.5 bg-[#5f6fff] hover:bg-[#4d5de6] text-white text-xs sm:text-sm font-semibold rounded-xl shadow-xs transition flex items-center justify-center gap-1.5 cursor-pointer"
                         >
-                          <span>⚡</span> Thanh toán VietQR
+                          Thanh toán VietQR
                         </button>
                         <button
                           onClick={() => setCancelModalId(item._id)}
-                          className="w-full px-4 py-2 border border-red-200 text-red-600 hover:bg-red-50 text-xs sm:text-sm font-semibold rounded-xl transition cursor-pointer"
+                          className="w-full px-4 py-2 border border-gray-200 text-gray-500 hover:text-rose-600 hover:border-rose-200 hover:bg-rose-50/40 text-xs sm:text-sm font-medium rounded-xl transition cursor-pointer"
                         >
                           Hủy lịch hẹn
                         </button>
@@ -212,19 +212,19 @@ const MyAppointment = () => {
                     )}
 
                     {item.payment && !item.isCompleted && !item.cancelled && (
-                      <div className="text-center py-2.5 px-3 bg-blue-50 border border-blue-200 rounded-xl">
-                        <span className="text-xs sm:text-sm text-blue-700 font-bold block">
-                          ✔ Đã thanh toán viện phí
+                      <div className="text-center py-2 px-3 bg-gray-50 border border-gray-200 rounded-xl">
+                        <span className="text-xs font-semibold text-emerald-700 block">
+                          Đã thanh toán viện phí
                         </span>
-                        <span className="text-[11px] text-blue-500 mt-0.5 block">
+                        <span className="text-[11px] text-gray-400 mt-0.5 block">
                           Phương thức: {item.paymentMethod || "VietQR"}
                         </span>
                       </div>
                     )}
 
                     {item.cancelled && (
-                      <div className="text-center py-2.5 px-4 bg-red-50 border border-red-200 rounded-xl">
-                        <span className="text-xs sm:text-sm text-red-600 font-medium">
+                      <div className="text-center py-2 px-4 bg-gray-50 border border-gray-200 rounded-xl">
+                        <span className="text-xs text-gray-400 font-medium">
                           Ca khám đã bị hủy
                         </span>
                       </div>
@@ -234,16 +234,16 @@ const MyAppointment = () => {
                     {hasMedicalRecord && (
                       <button
                         onClick={() => setSelectedAppointmentForPrescription(item)}
-                        className="w-full px-4 py-2.5 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white text-xs sm:text-sm font-bold rounded-xl shadow-xs transition flex items-center justify-center gap-1.5 cursor-pointer animate-pulse-subtle"
+                        className="w-full px-4 py-2.5 border border-[#5f6fff] text-[#5f6fff] hover:bg-[#f0f3ff] text-xs sm:text-sm font-semibold rounded-xl transition flex items-center justify-center gap-1.5 cursor-pointer"
                       >
-                        <span>📄</span> Xem kết quả & Đơn thuốc
+                        Xem kết quả & Đơn thuốc
                       </button>
                     )}
 
                     {item.isCompleted && !hasMedicalRecord && (
-                      <div className="text-center py-2.5 px-4 bg-emerald-50 border border-emerald-200 rounded-xl">
-                        <span className="text-xs sm:text-sm text-emerald-700 font-semibold">
-                          ✔ Đã hoàn tất ca khám
+                      <div className="text-center py-2 px-4 bg-gray-50 border border-gray-200 rounded-xl">
+                        <span className="text-xs text-gray-600 font-medium">
+                          Đã hoàn tất ca khám
                         </span>
                       </div>
                     )}

@@ -12,7 +12,7 @@ const DoctorCard = ({ doctor }) => {
       }}
       className="group bg-white border border-gray-200 rounded-2xl overflow-hidden cursor-pointer hover:-translate-y-2 hover:shadow-xl transition-all duration-300 flex flex-col justify-between"
     >
-      <div className="relative bg-gradient-to-b from-blue-50 to-indigo-50/40 aspect-4/3 overflow-hidden flex items-end justify-center">
+      <div className="relative bg-slate-50 aspect-4/3 overflow-hidden flex items-end justify-center">
         <img
           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
           src={doctor.image}

@@ -56,31 +56,31 @@ const DoctorAppointment = () => {
       {/* Header */}
       <div className="mb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">
-            Danh Sách Lịch Khám Của Bác Sĩ
+          <h1 className="text-xl sm:text-2xl font-bold text-gray-900">
+            Lịch Khám Của Bác Sĩ
           </h1>
-          <p className="text-gray-500 text-sm mt-1">
-            Tiếp nhận bệnh nhân, chỉ định xét nghiệm cận lâm sàng, chẩn đoán và kê đơn thuốc điều trị.
+          <p className="text-gray-500 text-xs sm:text-sm mt-0.5">
+            Tiếp nhận bệnh nhân, ghi nhận kết quả xét nghiệm, chẩn đoán và kê đơn thuốc.
           </p>
         </div>
-        <div className="bg-white px-4 py-2.5 rounded-xl border border-gray-200 shadow-xs flex items-center gap-2">
-          <span className="text-sm font-medium text-gray-600">Tổng ca khám:</span>
-          <span className="text-base font-bold text-emerald-600">{appointments.length}</span>
+        <div className="bg-white px-3.5 py-2 rounded-xl border border-gray-200 shadow-xs flex items-center gap-2 self-start sm:self-auto">
+          <span className="text-xs text-gray-500">Tổng ca khám:</span>
+          <span className="text-sm font-bold text-[#5f6fff]">{appointments.length}</span>
         </div>
       </div>
 
       {/* Filter & Search Bar */}
-      <div className="bg-white p-4 rounded-2xl border border-gray-200 shadow-xs mb-6 flex flex-col sm:flex-row gap-4">
+      <div className="bg-white p-3.5 rounded-xl border border-gray-200 shadow-xs mb-5 flex flex-col sm:flex-row gap-3">
         <div className="flex-1 relative">
           <input
             type="text"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             placeholder="Tìm theo tên bệnh nhân..."
-            className="w-full pl-10 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#5f6fff] focus:bg-white"
+            className="w-full pl-9 pr-4 py-2 bg-gray-50 border border-gray-200 rounded-lg text-xs sm:text-sm focus:outline-none focus:border-[#5f6fff] focus:bg-white transition"
           />
           <svg
-            className="w-4 h-4 text-gray-400 absolute left-3.5 top-3.5"
+            className="w-4 h-4 text-gray-400 absolute left-3 top-2.5"
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"
@@ -97,36 +97,36 @@ const DoctorAppointment = () => {
         <select
           value={filterStatus}
           onChange={(e) => setFilterStatus(e.target.value)}
-          className="px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm font-medium text-gray-700 focus:outline-none focus:ring-2 focus:ring-[#5f6fff]"
+          className="px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg text-xs font-medium text-gray-700 focus:outline-none focus:border-[#5f6fff]"
         >
-          <option value="all">🌟 Tất cả ca khám</option>
-          <option value="pending">⏳ Chờ khám</option>
-          <option value="paid">💳 Đã thanh toán trước</option>
-          <option value="completed">✔ Đã hoàn tất</option>
-          <option value="cancelled">❌ Đã hủy</option>
+          <option value="all">Tất cả ca khám</option>
+          <option value="pending">Chờ khám</option>
+          <option value="paid">Đã thanh toán trước</option>
+          <option value="completed">Đã hoàn tất</option>
+          <option value="cancelled">Đã hủy</option>
         </select>
       </div>
 
-      {/* Table */}
-      <div className="bg-white rounded-2xl shadow-xs border border-gray-200 overflow-hidden">
+      {/* Clean Table */}
+      <div className="bg-white rounded-xl shadow-xs border border-gray-200 overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse">
             <thead>
-              <tr className="bg-gray-50/80 border-b border-gray-200 text-[11px] font-bold text-gray-500 uppercase tracking-wider">
-                <th className="py-4 px-4 text-center w-12">#</th>
-                <th className="py-4 px-4">Bệnh nhân</th>
-                <th className="py-4 px-4">Độ tuổi</th>
-                <th className="py-4 px-4">Hình thức thanh toán</th>
-                <th className="py-4 px-4">Thời gian khám</th>
-                <th className="py-4 px-4">Viện phí</th>
-                <th className="py-4 px-4">Trạng thái & Bệnh án</th>
-                <th className="py-4 px-4 text-center min-w-[200px]">Xử lý chuyên môn</th>
+              <tr className="bg-gray-50/70 border-b border-gray-200 text-[11px] font-semibold text-gray-500 uppercase tracking-wider">
+                <th className="py-3 px-4 text-center w-12">#</th>
+                <th className="py-3 px-4">Bệnh nhân</th>
+                <th className="py-3 px-4">Tuổi</th>
+                <th className="py-3 px-4">Thanh toán</th>
+                <th className="py-3 px-4">Thời gian</th>
+                <th className="py-3 px-4">Viện phí</th>
+                <th className="py-3 px-4">Trạng thái & Bệnh án</th>
+                <th className="py-3 px-4 text-center min-w-[180px]">Thao tác</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-100 text-sm">
+            <tbody className="divide-y divide-gray-100 text-xs sm:text-sm">
               {filteredAppointments.length === 0 ? (
                 <tr>
-                  <td colSpan="8" className="text-center py-12 text-gray-500">
+                  <td colSpan="8" className="text-center py-10 text-gray-400 text-xs">
                     Không có ca khám nào phù hợp
                   </td>
                 </tr>
@@ -142,101 +142,99 @@ const DoctorAppointment = () => {
                         item.medicalRecord.labTests.length > 0));
 
                   return (
-                    <tr key={item._id || index} className="hover:bg-gray-50 transition">
-                      <td className="py-4 px-4 text-center text-xs text-gray-400 font-bold">
+                    <tr key={item._id || index} className="hover:bg-gray-50/60 transition">
+                      <td className="py-3.5 px-4 text-center text-xs text-gray-400 font-medium">
                         {index + 1}
                       </td>
-                      <td className="py-4 px-4">
+                      <td className="py-3.5 px-4">
                         <div className="flex items-center gap-3">
                           <img
-                            className="w-10 h-10 rounded-full object-cover bg-gray-100 border border-gray-200"
+                            className="w-9 h-9 rounded-full object-cover bg-gray-100 border border-gray-200"
                             src={item.userData?.image || "https://placehold.co/100x100"}
                             alt={item.userData?.name}
                           />
                           <div>
-                            <p className="font-bold text-gray-900 text-sm">
+                            <p className="font-semibold text-gray-900 text-xs sm:text-sm">
                               {item.userData?.name || "Bệnh nhân ẩn danh"}
                             </p>
-                            <p className="text-xs text-gray-400">
-                              {item.userData?.phone || item.userData?.email || "Chưa có liên hệ"}
+                            <p className="text-[11px] text-gray-400">
+                              {item.userData?.phone || item.userData?.email || "Chưa có SĐT"}
                             </p>
                           </div>
                         </div>
                       </td>
-                      <td className="py-4 px-4 text-gray-600 font-medium text-xs">
+                      <td className="py-3.5 px-4 text-gray-600 text-xs">
                         {calculateAge(item.userData?.dob)}
                       </td>
-                      <td className="py-4 px-4">
+                      <td className="py-3.5 px-4">
                         <span
-                          className={`inline-block px-2.5 py-1 rounded-full text-xs font-semibold ${
+                          className={`inline-block px-2.5 py-0.5 rounded text-[11px] font-medium ${
                             item.payment
-                              ? "bg-blue-50 text-blue-700 border border-blue-200"
-                              : "bg-amber-50 text-amber-700 border border-amber-200"
+                              ? "bg-blue-50 text-blue-700"
+                              : "bg-gray-100 text-gray-600"
                           }`}
                         >
-                          {item.payment ? (item.paymentMethod || "VietQR (Online)") : "Thu tiền mặt"}
+                          {item.payment ? (item.paymentMethod || "VietQR") : "Tiền mặt"}
                         </span>
                       </td>
-                      <td className="py-4 px-4 text-xs font-medium text-gray-700">
-                        <span className="block font-bold text-gray-900">
+                      <td className="py-3.5 px-4 text-xs">
+                        <span className="font-medium text-gray-900 block">
                           {formatSlotDate(item.slotDate)}
                         </span>
-                        <span className="text-blue-600">{item.slotTime}</span>
+                        <span className="text-gray-500">{item.slotTime}</span>
                       </td>
-                      <td className="py-4 px-4 font-bold text-emerald-600 text-xs">
+                      <td className="py-3.5 px-4 font-semibold text-gray-900 text-xs">
                         {formatCurrency(item.amount)}
                       </td>
-                      <td className="py-4 px-4">
+                      <td className="py-3.5 px-4">
                         <div className="space-y-1">
                           <span
-                            className={`inline-block px-3 py-1 rounded-full text-xs font-semibold ${status.bgColor} ${status.textColor} border ${status.borderColor}`}
+                            className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-medium ${status.bgColor} ${status.textColor} border ${status.borderColor}`}
                           >
+                            <span className="w-1.5 h-1.5 rounded-full bg-current"></span>
                             {status.text}
                           </span>
                           {hasMedicalRecord && (
-                            <div className="flex items-center gap-1 text-[11px] font-semibold text-indigo-700 bg-indigo-50 border border-indigo-200 px-2 py-0.5 rounded-md w-fit">
-                              <span>📄</span> Có bệnh án & đơn thuốc
-                            </div>
+                            <span className="block text-[11px] text-[#5f6fff] font-medium">
+                              Đã có bệnh án
+                            </span>
                           )}
                         </div>
                       </td>
-                      <td className="py-4 px-4 text-center">
+                      <td className="py-3.5 px-4 text-center">
                         {!item.cancelled && !item.isCompleted ? (
-                          <div className="flex items-center justify-center gap-1.5 flex-wrap">
+                          <div className="flex items-center justify-center gap-1.5">
                             <button
                               onClick={() => setSelectedAppointmentForMedical(item)}
-                              className="px-3 py-1.5 bg-gradient-to-r from-blue-600 to-[#5f6fff] hover:from-blue-700 hover:to-indigo-700 text-white rounded-lg text-xs font-bold transition shadow-xs flex items-center gap-1 cursor-pointer"
-                              title="Chỉ định xét nghiệm, chẩn đoán và kê đơn thuốc"
+                              className="px-3 py-1.5 bg-[#5f6fff] hover:bg-[#4d5de6] text-white rounded-lg text-xs font-medium transition cursor-pointer"
+                              title="Khám và kê đơn"
                             >
-                              <span>🩺</span> Khám & Kê đơn
+                              Khám bệnh
                             </button>
                             <button
                               onClick={() => completeAppointment(item._id)}
-                              className="px-2.5 py-1.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200 rounded-lg text-xs font-bold transition cursor-pointer"
-                              title="Xác nhận hoàn thành khám nhanh"
+                              className="px-2.5 py-1.5 border border-emerald-300 text-emerald-700 hover:bg-emerald-50 rounded-lg text-xs font-medium transition cursor-pointer"
+                              title="Hoàn tất nhanh"
                             >
-                              ✔ Xong
+                              Khám xong
                             </button>
                             <button
                               onClick={() => setCancelModalId(item._id)}
-                              className="px-2 py-1.5 text-red-600 hover:bg-red-50 border border-red-200 rounded-lg text-xs font-medium transition cursor-pointer"
+                              className="px-2 py-1.5 text-gray-400 hover:text-rose-600 rounded-lg text-xs transition cursor-pointer"
                               title="Hủy lịch hẹn"
                             >
-                              Hủy
+                              ✕
                             </button>
                           </div>
                         ) : item.isCompleted ? (
-                          <div className="flex items-center justify-center gap-2">
-                            <button
-                              onClick={() => setSelectedAppointmentForMedical(item)}
-                              className="px-3 py-1.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 rounded-lg text-xs font-bold transition flex items-center gap-1 cursor-pointer"
-                              title="Xem lại hoặc cập nhật hồ sơ bệnh án"
-                            >
-                              <span>📄</span> Hồ sơ bệnh án
-                            </button>
-                          </div>
+                          <button
+                            onClick={() => setSelectedAppointmentForMedical(item)}
+                            className="px-3 py-1.5 border border-gray-200 hover:border-[#5f6fff] text-gray-700 hover:text-[#5f6fff] rounded-lg text-xs font-medium transition cursor-pointer"
+                          >
+                            Hồ sơ bệnh án
+                          </button>
                         ) : (
-                          <span className="text-xs text-gray-400 font-medium">Đã hủy</span>
+                          <span className="text-xs text-gray-400">Đã hủy</span>
                         )}
                       </td>
                     </tr>
@@ -248,7 +246,7 @@ const DoctorAppointment = () => {
         </div>
       </div>
 
-      {/* Medical Examination & Prescription Modal */}
+      {/* Medical Examination Modal */}
       <MedicalRecordModal
         isOpen={Boolean(selectedAppointmentForMedical)}
         appointment={selectedAppointmentForMedical}
@@ -258,26 +256,23 @@ const DoctorAppointment = () => {
       {/* Confirmation Modal */}
       {cancelModalId && (
         <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl max-w-sm w-full p-6 shadow-2xl text-center space-y-4">
-            <div className="w-12 h-12 bg-red-100 text-red-600 rounded-full flex items-center justify-center mx-auto text-xl">
-              ⚠️
-            </div>
-            <h3 className="text-lg font-bold text-gray-800">Xác nhận hủy ca khám?</h3>
-            <p className="text-gray-500 text-sm">
-              Bác sĩ có chắc chắn muốn hủy ca khám này?
+          <div className="bg-white rounded-2xl max-w-sm w-full p-6 shadow-xl border border-gray-200 text-center space-y-4">
+            <h3 className="text-base font-bold text-gray-900">Xác nhận hủy ca khám?</h3>
+            <p className="text-gray-500 text-xs">
+              Bác sĩ có chắc chắn muốn hủy lịch hẹn khám bệnh này?
             </p>
-            <div className="flex items-center gap-3 pt-2">
+            <div className="flex items-center gap-2 pt-2">
               <button
                 onClick={() => setCancelModalId(null)}
-                className="flex-1 py-2.5 border border-gray-300 rounded-xl text-gray-700 font-medium text-sm hover:bg-gray-50 cursor-pointer"
+                className="flex-1 py-2 border border-gray-200 rounded-xl text-gray-600 font-medium text-xs hover:bg-gray-50 cursor-pointer"
               >
                 Đóng
               </button>
               <button
                 onClick={handleConfirmCancel}
-                className="flex-1 py-2.5 bg-red-600 hover:bg-red-700 text-white rounded-xl font-semibold text-sm shadow-xs cursor-pointer"
+                className="flex-1 py-2 bg-rose-600 hover:bg-rose-700 text-white rounded-xl font-medium text-xs cursor-pointer transition"
               >
-                Hủy ca khám
+                Xác nhận hủy
               </button>
             </div>
           </div>

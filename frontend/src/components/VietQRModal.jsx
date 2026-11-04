@@ -205,7 +205,7 @@ const VietQRModal = ({
             type="button"
             disabled={isProcessing}
             onClick={handleConfirmDemoPayment}
-            className="w-full py-3.5 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-bold text-sm rounded-2xl shadow-md transition flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
+            className="w-full py-3 bg-[#5f6fff] hover:bg-[#4d5de6] text-white font-semibold text-sm rounded-xl shadow-xs transition flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
           >
             {isProcessing ? (
               <>
@@ -213,17 +213,14 @@ const VietQRModal = ({
                 <span>Đang đối soát giao dịch Napas 24/7...</span>
               </>
             ) : (
-              <>
-                <span>⚡</span>
-                <span>Xác nhận đã thanh toán (Demo Test)</span>
-              </>
+              <span>Xác nhận đã thanh toán (Demo Test)</span>
             )}
           </button>
 
           <button
             type="button"
             onClick={onClose}
-            className="w-full py-2.5 text-xs font-semibold text-gray-500 hover:text-gray-800 hover:bg-gray-100 rounded-xl transition cursor-pointer"
+            className="w-full py-2.5 text-xs font-medium text-gray-500 hover:text-gray-800 hover:bg-gray-50 rounded-xl transition cursor-pointer"
           >
             Để thanh toán sau
           </button>

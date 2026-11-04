@@ -107,9 +107,7 @@ const MedicalRecordModal = ({ isOpen, appointment, onClose }) => {
         weight: mr.vitals?.weight || "",
       });
       setLabTests(
-        mr.labTests && mr.labTests.length > 0
-          ? mr.labTests
-          : []
+        mr.labTests && mr.labTests.length > 0 ? mr.labTests : []
       );
       setDiagnosis(mr.diagnosis || "");
       setPrescription(
@@ -125,14 +123,16 @@ const MedicalRecordModal = ({ isOpen, appointment, onClose }) => {
               },
             ]
       );
-      setAdvice(mr.advice || "Nghỉ ngơi hợp lý, uống nhiều nước ấm, tuân thủ đơn thuốc đúng liều lượng.");
+      setAdvice(
+        mr.advice ||
+          "Nghỉ ngơi hợp lý, uống nhiều nước ấm, tuân thủ đơn thuốc đúng liều lượng."
+      );
       setFollowUpDate(mr.followUpDate || "");
     }
   }, [appointment, isOpen]);
 
   if (!isOpen || !appointment) return null;
 
-  // Xử lý thêm xét nghiệm
   const handleAddLabTest = (testName = "") => {
     setLabTests([
       ...labTests,
@@ -155,7 +155,6 @@ const MedicalRecordModal = ({ isOpen, appointment, onClose }) => {
     setLabTests(updated);
   };
 
-  // Xử lý thêm dòng thuốc
   const handleAddPrescriptionRow = (medicine = null) => {
     if (medicine) {
       setPrescription([
@@ -192,9 +191,7 @@ const MedicalRecordModal = ({ isOpen, appointment, onClose }) => {
     setPrescription(updated);
   };
 
-  // Lưu bệnh án
   const handleSave = async (isCompleted = true) => {
-    // Lọc bỏ các dòng thuốc trống
     const cleanedPrescription = prescription.filter(
       (item) => item.medicineName && item.medicineName.trim() !== ""
     );
@@ -213,7 +210,11 @@ const MedicalRecordModal = ({ isOpen, appointment, onClose }) => {
     };
 
     setLoading(true);
-    const success = await saveMedicalRecord(appointment._id, recordPayload, isCompleted);
+    const success = await saveMedicalRecord(
+      appointment._id,
+      recordPayload,
+      isCompleted
+    );
     setLoading(false);
     if (success) {
       onClose();
@@ -223,112 +224,114 @@ const MedicalRecordModal = ({ isOpen, appointment, onClose }) => {
   const userData = appointment.userData || {};
 
   return (
-    <div className="fixed inset-0 z-50 overflow-y-auto bg-black/60 backdrop-blur-xs flex items-center justify-center p-3 sm:p-5">
-      <div className="bg-white rounded-2xl w-full max-w-5xl shadow-2xl overflow-hidden flex flex-col max-h-[92vh] animate-fadeIn">
-        {/* Header */}
-        <div className="bg-gradient-to-r from-blue-700 via-indigo-700 to-[#5f6fff] text-white p-5 flex items-center justify-between">
+    <div className="fixed inset-0 z-50 overflow-y-auto bg-black/50 backdrop-blur-xs flex items-center justify-center p-3 sm:p-5">
+      <div className="bg-white rounded-2xl w-full max-w-4xl shadow-xl border border-gray-200 overflow-hidden flex flex-col max-h-[92vh]">
+        {/* Clean Modern Header - No loud gradients */}
+        <div className="bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-11 h-11 bg-white/20 rounded-xl flex items-center justify-center text-2xl shadow-inner">
+            <div className="w-10 h-10 rounded-xl bg-[#f0f3ff] text-[#5f6fff] flex items-center justify-center font-bold text-base">
               🩺
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <h2 className="text-xl font-bold tracking-tight">Hồ Sơ Khám Bệnh & Đơn Thuốc</h2>
-                <span className="bg-white/20 text-xs px-2.5 py-0.5 rounded-full font-mono">
+                <h2 className="text-base sm:text-lg font-bold text-gray-900">
+                  Hồ Sơ Khám Bệnh & Đơn Thuốc
+                </h2>
+                <span className="bg-gray-100 text-gray-600 text-xs px-2 py-0.5 rounded font-mono font-medium">
                   #BD-{appointment._id.slice(-6).toUpperCase()}
                 </span>
               </div>
-              <p className="text-blue-100 text-xs mt-0.5">
-                Bệnh nhân: <strong>{userData.name}</strong> •{" "}
-                {calculateAge(userData.dob)} • Giới tính: {userData.gender === "Male" ? "Nam" : userData.gender === "Female" ? "Nữ" : "Khác"} • Ngày khám: {formatSlotDate(appointment.slotDate)} lúc {appointment.slotTime}
+              <p className="text-xs text-gray-500 mt-0.5">
+                Bệnh nhân: <strong className="text-gray-800">{userData.name}</strong> •{" "}
+                {calculateAge(userData.dob)} • {formatSlotDate(appointment.slotDate)} ({appointment.slotTime})
               </p>
             </div>
           </div>
           <button
             onClick={onClose}
-            className="w-9 h-9 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white text-xl transition cursor-pointer"
+            className="w-8 h-8 rounded-lg text-gray-400 hover:text-gray-700 hover:bg-gray-100 flex items-center justify-center text-lg transition cursor-pointer"
           >
             ✕
           </button>
         </div>
 
-        {/* Tab Navigation */}
-        <div className="flex border-b border-gray-200 bg-gray-50/80 px-5 text-sm overflow-x-auto no-scrollbar">
+        {/* Clean Underline Tabs */}
+        <div className="flex border-b border-gray-200 bg-white px-6 text-sm overflow-x-auto no-scrollbar">
           <button
             onClick={() => setActiveTab("clinical")}
-            className={`py-3 px-4 font-semibold border-b-2 transition flex items-center gap-2 whitespace-nowrap cursor-pointer ${
+            className={`py-3 px-3 font-medium border-b-2 transition whitespace-nowrap cursor-pointer ${
               activeTab === "clinical"
-                ? "border-[#5f6fff] text-[#5f6fff]"
+                ? "border-[#5f6fff] text-[#5f6fff] font-semibold"
                 : "border-transparent text-gray-500 hover:text-gray-800"
             }`}
           >
-            <span>1. Khám Lâm Sàng</span>
+            1. Khám Lâm Sàng
           </button>
           <button
             onClick={() => setActiveTab("tests")}
-            className={`py-3 px-4 font-semibold border-b-2 transition flex items-center gap-2 whitespace-nowrap cursor-pointer ${
+            className={`py-3 px-3 font-medium border-b-2 transition flex items-center gap-1.5 whitespace-nowrap cursor-pointer ${
               activeTab === "tests"
-                ? "border-[#5f6fff] text-[#5f6fff]"
+                ? "border-[#5f6fff] text-[#5f6fff] font-semibold"
                 : "border-transparent text-gray-500 hover:text-gray-800"
             }`}
           >
-            <span>2. Xét Nghiệm & Kết Quả</span>
+            <span>2. Xét Nghiệm</span>
             {labTests.length > 0 && (
-              <span className="bg-blue-100 text-blue-700 text-xs px-2 py-0.5 rounded-full font-bold">
+              <span className="bg-[#f0f3ff] text-[#5f6fff] text-[11px] px-1.5 py-0.2 rounded-full font-bold">
                 {labTests.length}
               </span>
             )}
           </button>
           <button
             onClick={() => setActiveTab("diagnosis")}
-            className={`py-3 px-4 font-semibold border-b-2 transition flex items-center gap-2 whitespace-nowrap cursor-pointer ${
+            className={`py-3 px-3 font-medium border-b-2 transition flex items-center gap-1.5 whitespace-nowrap cursor-pointer ${
               activeTab === "diagnosis"
-                ? "border-[#5f6fff] text-[#5f6fff]"
+                ? "border-[#5f6fff] text-[#5f6fff] font-semibold"
                 : "border-transparent text-gray-500 hover:text-gray-800"
             }`}
           >
-            <span>3. Chẩn Đoán Bệnh</span>
-            {diagnosis && <span className="text-emerald-500 text-xs">✔</span>}
+            <span>3. Chẩn Đoán</span>
+            {diagnosis && <span className="text-[#5f6fff] text-xs">✔</span>}
           </button>
           <button
             onClick={() => setActiveTab("prescription")}
-            className={`py-3 px-4 font-semibold border-b-2 transition flex items-center gap-2 whitespace-nowrap cursor-pointer ${
+            className={`py-3 px-3 font-medium border-b-2 transition flex items-center gap-1.5 whitespace-nowrap cursor-pointer ${
               activeTab === "prescription"
-                ? "border-[#5f6fff] text-[#5f6fff]"
+                ? "border-[#5f6fff] text-[#5f6fff] font-semibold"
                 : "border-transparent text-gray-500 hover:text-gray-800"
             }`}
           >
             <span>4. Kê Đơn Thuốc</span>
             {prescription.filter((p) => p.medicineName.trim()).length > 0 && (
-              <span className="bg-emerald-100 text-emerald-700 text-xs px-2 py-0.5 rounded-full font-bold">
+              <span className="bg-[#f0f3ff] text-[#5f6fff] text-[11px] px-1.5 py-0.2 rounded-full font-bold">
                 {prescription.filter((p) => p.medicineName.trim()).length}
               </span>
             )}
           </button>
           <button
             onClick={() => setActiveTab("advice")}
-            className={`py-3 px-4 font-semibold border-b-2 transition flex items-center gap-2 whitespace-nowrap cursor-pointer ${
+            className={`py-3 px-3 font-medium border-b-2 transition whitespace-nowrap cursor-pointer ${
               activeTab === "advice"
-                ? "border-[#5f6fff] text-[#5f6fff]"
+                ? "border-[#5f6fff] text-[#5f6fff] font-semibold"
                 : "border-transparent text-gray-500 hover:text-gray-800"
             }`}
           >
-            <span>5. Lời Dặn & Tái Khám</span>
+            5. Lời Dặn & Tái Khám
           </button>
         </div>
 
         {/* Modal Body */}
-        <div className="flex-1 overflow-y-auto p-5 sm:p-6 space-y-6">
+        <div className="flex-1 overflow-y-auto p-6 space-y-6">
           {/* TAB 1: KHÁM LÂM SÀNG & SINH HIỆU */}
           {activeTab === "clinical" && (
-            <div className="space-y-6">
-              <div className="bg-blue-50/60 p-4 rounded-xl border border-blue-100">
-                <h3 className="text-sm font-bold text-blue-900 mb-2 flex items-center gap-2">
-                  <span>🩺</span> Chỉ số sinh tồn (Sinh hiệu)
+            <div className="space-y-5">
+              <div className="bg-gray-50/80 p-4 rounded-xl border border-gray-200">
+                <h3 className="text-xs font-bold text-gray-700 uppercase tracking-wider mb-3">
+                  Chỉ số sinh tồn (Sinh hiệu)
                 </h3>
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                   <div>
-                    <label className="block text-xs font-medium text-gray-700 mb-1">
+                    <label className="block text-xs text-gray-600 mb-1">
                       Huyết áp (mmHg)
                     </label>
                     <input
@@ -338,11 +341,11 @@ const MedicalRecordModal = ({ isOpen, appointment, onClose }) => {
                       onChange={(e) =>
                         setVitals({ ...vitals, bloodPressure: e.target.value })
                       }
-                      className="w-full px-3 py-2 bg-white border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-[#5f6fff] outline-none"
+                      className="w-full px-3 py-2 bg-white border border-gray-200 rounded-lg text-sm focus:border-[#5f6fff] focus:ring-1 focus:ring-[#5f6fff] outline-none"
                     />
                   </div>
                   <div>
-                    <label className="block text-xs font-medium text-gray-700 mb-1">
+                    <label className="block text-xs text-gray-600 mb-1">
                       Nhịp tim (lần/phút)
                     </label>
                     <input
@@ -352,11 +355,11 @@ const MedicalRecordModal = ({ isOpen, appointment, onClose }) => {
                       onChange={(e) =>
                         setVitals({ ...vitals, heartRate: e.target.value })
                       }
-                      className="w-full px-3 py-2 bg-white border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-[#5f6fff] outline-none"
+                      className="w-full px-3 py-2 bg-white border border-gray-200 rounded-lg text-sm focus:border-[#5f6fff] focus:ring-1 focus:ring-[#5f6fff] outline-none"
                     />
                   </div>
                   <div>
-                    <label className="block text-xs font-medium text-gray-700 mb-1">
+                    <label className="block text-xs text-gray-600 mb-1">
                       Thân nhiệt (°C)
                     </label>
                     <input
@@ -366,11 +369,11 @@ const MedicalRecordModal = ({ isOpen, appointment, onClose }) => {
                       onChange={(e) =>
                         setVitals({ ...vitals, temperature: e.target.value })
                       }
-                      className="w-full px-3 py-2 bg-white border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-[#5f6fff] outline-none"
+                      className="w-full px-3 py-2 bg-white border border-gray-200 rounded-lg text-sm focus:border-[#5f6fff] focus:ring-1 focus:ring-[#5f6fff] outline-none"
                     />
                   </div>
                   <div>
-                    <label className="block text-xs font-medium text-gray-700 mb-1">
+                    <label className="block text-xs text-gray-600 mb-1">
                       Cân nặng (kg)
                     </label>
                     <input
@@ -380,32 +383,32 @@ const MedicalRecordModal = ({ isOpen, appointment, onClose }) => {
                       onChange={(e) =>
                         setVitals({ ...vitals, weight: e.target.value })
                       }
-                      className="w-full px-3 py-2 bg-white border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-[#5f6fff] outline-none"
+                      className="w-full px-3 py-2 bg-white border border-gray-200 rounded-lg text-sm focus:border-[#5f6fff] focus:ring-1 focus:ring-[#5f6fff] outline-none"
                     />
                   </div>
                 </div>
               </div>
 
               <div>
-                <label className="block text-sm font-bold text-gray-800 mb-2">
-                  Lý do đến khám & Triệu chứng lâm sàng của bệnh nhân:
+                <label className="block text-sm font-semibold text-gray-800 mb-1.5">
+                  Lý do đến khám & Triệu chứng ban đầu:
                 </label>
                 <textarea
-                  rows="5"
+                  rows="4"
                   value={symptoms}
                   onChange={(e) => setSymptoms(e.target.value)}
-                  placeholder="Ghi nhận triệu chứng lâm sàng: sốt, ho, đau họng, đau tức ngực, mệt mỏi, tiền sử bệnh tật..."
-                  className="w-full p-4 border border-gray-300 rounded-xl text-sm focus:ring-2 focus:ring-[#5f6fff] outline-none leading-relaxed"
+                  placeholder="Ghi nhận triệu chứng lâm sàng: sốt, ho, đau họng, đau tức ngực, mệt mỏi..."
+                  className="w-full p-3.5 bg-white border border-gray-200 rounded-xl text-sm focus:border-[#5f6fff] focus:ring-1 focus:ring-[#5f6fff] outline-none leading-relaxed"
                 ></textarea>
               </div>
 
-              <div className="flex justify-end">
+              <div className="flex justify-end pt-2">
                 <button
                   type="button"
                   onClick={() => setActiveTab("tests")}
-                  className="px-5 py-2.5 bg-[#5f6fff] hover:bg-blue-600 text-white rounded-xl text-sm font-semibold transition flex items-center gap-2 cursor-pointer"
+                  className="px-5 py-2.5 bg-[#5f6fff] hover:bg-[#4d5de6] text-white rounded-xl text-sm font-semibold transition cursor-pointer"
                 >
-                  Tiếp theo: Chỉ định xét nghiệm ➔
+                  Chỉ định xét nghiệm &rarr;
                 </button>
               </div>
             </div>
@@ -413,18 +416,18 @@ const MedicalRecordModal = ({ isOpen, appointment, onClose }) => {
 
           {/* TAB 2: XÉT NGHIỆM CẬN LÂM SÀNG & KẾT QUẢ */}
           {activeTab === "tests" && (
-            <div className="space-y-6">
+            <div className="space-y-5">
               <div>
-                <p className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">
-                  Gợi ý chỉ định xét nghiệm nhanh:
+                <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">
+                  Chỉ định xét nghiệm nhanh:
                 </p>
-                <div className="flex flex-wrap gap-2">
+                <div className="flex flex-wrap gap-1.5">
                   {QUICK_LAB_TESTS.map((test, idx) => (
                     <button
                       key={idx}
                       type="button"
                       onClick={() => handleAddLabTest(test)}
-                      className="text-xs bg-gray-100 hover:bg-blue-50 hover:text-blue-700 text-gray-700 px-3 py-1.5 rounded-lg border border-gray-200 transition font-medium cursor-pointer"
+                      className="text-xs bg-gray-50 hover:bg-[#f0f3ff] hover:text-[#5f6fff] hover:border-[#d6e0ff] text-gray-700 px-3 py-1.5 rounded-lg border border-gray-200 transition font-medium cursor-pointer"
                     >
                       + {test}
                     </button>
@@ -432,57 +435,51 @@ const MedicalRecordModal = ({ isOpen, appointment, onClose }) => {
                 </div>
               </div>
 
-              <div className="space-y-4">
+              <div className="space-y-3">
                 <div className="flex items-center justify-between">
                   <h3 className="text-sm font-bold text-gray-800">
-                    Danh sách các xét nghiệm đã chỉ định ({labTests.length})
+                    Danh sách xét nghiệm ({labTests.length})
                   </h3>
                   <button
                     type="button"
                     onClick={() => handleAddLabTest("")}
-                    className="text-xs font-semibold text-[#5f6fff] hover:underline flex items-center gap-1 cursor-pointer"
+                    className="text-xs font-semibold text-[#5f6fff] hover:underline cursor-pointer"
                   >
-                    + Thêm xét nghiệm tùy chỉnh
+                    + Thêm xét nghiệm khác
                   </button>
                 </div>
 
                 {labTests.length === 0 ? (
-                  <div className="text-center py-10 bg-gray-50 rounded-xl border border-dashed border-gray-300 text-gray-400 text-sm">
-                    Chưa có xét nghiệm nào. Nhấp vào các gợi ý xét nghiệm phía trên hoặc nút "Thêm xét nghiệm".
+                  <div className="text-center py-8 bg-gray-50 rounded-xl border border-dashed border-gray-200 text-gray-400 text-xs">
+                    Chưa có xét nghiệm nào được chọn. Nhấp vào các gợi ý phía trên nếu cần xét nghiệm cận lâm sàng.
                   </div>
                 ) : (
-                  <div className="space-y-3">
+                  <div className="space-y-2.5">
                     {labTests.map((item, index) => (
                       <div
                         key={index}
-                        className="p-4 bg-gray-50 rounded-xl border border-gray-200 space-y-3 relative group"
+                        className="p-3.5 bg-gray-50/70 rounded-xl border border-gray-200 space-y-2.5"
                       >
-                        <div className="flex flex-col sm:flex-row gap-3 items-start sm:items-center justify-between">
+                        <div className="flex flex-col sm:flex-row gap-2.5 items-start sm:items-center justify-between">
                           <div className="flex-1 w-full">
-                            <label className="block text-xs font-medium text-gray-600 mb-1">
-                              Tên xét nghiệm #{index + 1}
-                            </label>
                             <input
                               type="text"
                               value={item.testName}
                               onChange={(e) =>
                                 handleUpdateLabTest(index, "testName", e.target.value)
                               }
-                              placeholder="Tên xét nghiệm (vd: Chụp X-quang phổi)"
-                              className="w-full px-3 py-2 bg-white border border-gray-300 rounded-lg text-sm font-semibold text-gray-800 focus:ring-2 focus:ring-[#5f6fff] outline-none"
+                              placeholder="Tên xét nghiệm"
+                              className="w-full px-3 py-1.5 bg-white border border-gray-200 rounded-lg text-sm font-medium text-gray-800 focus:border-[#5f6fff] focus:ring-1 focus:ring-[#5f6fff] outline-none"
                             />
                           </div>
 
-                          <div className="w-full sm:w-44">
-                            <label className="block text-xs font-medium text-gray-600 mb-1">
-                              Trạng thái
-                            </label>
+                          <div className="w-full sm:w-40">
                             <select
                               value={item.status}
                               onChange={(e) =>
                                 handleUpdateLabTest(index, "status", e.target.value)
                               }
-                              className="w-full px-3 py-2 bg-white border border-gray-300 rounded-lg text-xs font-medium text-gray-700 outline-none"
+                              className="w-full px-3 py-1.5 bg-white border border-gray-200 rounded-lg text-xs font-medium text-gray-700 outline-none"
                             >
                               <option value="Completed">✔ Đã có kết quả</option>
                               <option value="Pending">⏳ Chờ kết quả</option>
@@ -492,24 +489,21 @@ const MedicalRecordModal = ({ isOpen, appointment, onClose }) => {
                           <button
                             type="button"
                             onClick={() => handleRemoveLabTest(index)}
-                            className="text-red-500 hover:text-red-700 text-xs px-2 py-1 rounded hover:bg-red-50 transition cursor-pointer self-end sm:self-center"
+                            className="text-gray-400 hover:text-rose-600 text-xs px-2 py-1 rounded transition cursor-pointer"
                           >
                             Xóa
                           </button>
                         </div>
 
                         <div>
-                          <label className="block text-xs font-medium text-gray-600 mb-1">
-                            Kết quả xét nghiệm & Nhận xét cận lâm sàng:
-                          </label>
                           <textarea
                             rows="2"
                             value={item.result}
                             onChange={(e) =>
                               handleUpdateLabTest(index, "result", e.target.value)
                             }
-                            placeholder="Nhập kết quả xét nghiệm (chỉ số, mô tả hình ảnh X-quang, siêu âm...)"
-                            className="w-full px-3 py-2 bg-white border border-gray-300 rounded-lg text-sm text-gray-800 focus:ring-2 focus:ring-[#5f6fff] outline-none"
+                            placeholder="Nhập kết quả xét nghiệm / mô tả cận lâm sàng..."
+                            className="w-full px-3 py-2 bg-white border border-gray-200 rounded-lg text-xs text-gray-800 focus:border-[#5f6fff] focus:ring-1 focus:ring-[#5f6fff] outline-none"
                           ></textarea>
                         </div>
                       </div>
@@ -522,16 +516,16 @@ const MedicalRecordModal = ({ isOpen, appointment, onClose }) => {
                 <button
                   type="button"
                   onClick={() => setActiveTab("clinical")}
-                  className="px-4 py-2 border border-gray-300 rounded-xl text-sm font-medium text-gray-700 hover:bg-gray-50"
+                  className="px-4 py-2 border border-gray-200 rounded-xl text-xs font-medium text-gray-600 hover:bg-gray-50"
                 >
-                  ⬅ Quay lại
+                  &larr; Quay lại
                 </button>
                 <button
                   type="button"
                   onClick={() => setActiveTab("diagnosis")}
-                  className="px-5 py-2.5 bg-[#5f6fff] hover:bg-blue-600 text-white rounded-xl text-sm font-semibold transition flex items-center gap-2 cursor-pointer"
+                  className="px-5 py-2.5 bg-[#5f6fff] hover:bg-[#4d5de6] text-white rounded-xl text-sm font-semibold transition cursor-pointer"
                 >
-                  Tiếp theo: Chẩn đoán bệnh ➔
+                  Chẩn đoán bệnh &rarr;
                 </button>
               </div>
             </div>
@@ -539,18 +533,18 @@ const MedicalRecordModal = ({ isOpen, appointment, onClose }) => {
 
           {/* TAB 3: CHẨN ĐOÁN BỆNH */}
           {activeTab === "diagnosis" && (
-            <div className="space-y-6">
+            <div className="space-y-5">
               <div>
-                <p className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">
-                  Chọn nhanh bệnh lý chẩn đoán thường gặp:
+                <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">
+                  Bệnh lý chẩn đoán thường gặp:
                 </p>
-                <div className="flex flex-wrap gap-2">
+                <div className="flex flex-wrap gap-1.5">
                   {QUICK_DIAGNOSES.map((diag, idx) => (
                     <button
                       key={idx}
                       type="button"
                       onClick={() => setDiagnosis(diag)}
-                      className="text-xs bg-gray-100 hover:bg-emerald-50 hover:text-emerald-700 hover:border-emerald-300 text-gray-700 px-3 py-1.5 rounded-lg border border-gray-200 transition font-medium cursor-pointer"
+                      className="text-xs bg-gray-50 hover:bg-[#f0f3ff] hover:text-[#5f6fff] hover:border-[#d6e0ff] text-gray-700 px-3 py-1.5 rounded-lg border border-gray-200 transition font-medium cursor-pointer"
                     >
                       {diag}
                     </button>
@@ -559,36 +553,32 @@ const MedicalRecordModal = ({ isOpen, appointment, onClose }) => {
               </div>
 
               <div>
-                <label className="block text-sm font-bold text-gray-800 mb-2">
-                  Kết luận chẩn đoán xác định của Bác sĩ:
+                <label className="block text-sm font-semibold text-gray-800 mb-1.5">
+                  Kết luận chẩn đoán của Bác sĩ:
                 </label>
                 <textarea
-                  rows="4"
+                  rows="3"
                   value={diagnosis}
                   onChange={(e) => setDiagnosis(e.target.value)}
-                  placeholder="Nhập chẩn đoán bệnh dựa trên triệu chứng lâm sàng và kết quả cận lâm sàng..."
-                  className="w-full p-4 border border-gray-300 rounded-xl text-sm font-semibold text-gray-900 focus:ring-2 focus:ring-[#5f6fff] outline-none leading-relaxed"
+                  placeholder="Ghi nhận chẩn đoán xác định dựa trên khám lâm sàng và kết quả xét nghiệm..."
+                  className="w-full p-3.5 border border-gray-200 rounded-xl text-sm font-medium text-gray-900 focus:border-[#5f6fff] focus:ring-1 focus:ring-[#5f6fff] outline-none leading-relaxed"
                 ></textarea>
-              </div>
-
-              <div className="bg-amber-50 p-4 rounded-xl border border-amber-200 text-xs text-amber-800">
-                💡 <strong>Gợi ý:</strong> Kết luận chẩn đoán sẽ được hiển thị trang trọng trên Đơn thuốc điện tử và hồ sơ bệnh án của bệnh nhân.
               </div>
 
               <div className="flex justify-between items-center pt-2">
                 <button
                   type="button"
                   onClick={() => setActiveTab("tests")}
-                  className="px-4 py-2 border border-gray-300 rounded-xl text-sm font-medium text-gray-700 hover:bg-gray-50"
+                  className="px-4 py-2 border border-gray-200 rounded-xl text-xs font-medium text-gray-600 hover:bg-gray-50"
                 >
-                  ⬅ Quay lại
+                  &larr; Quay lại
                 </button>
                 <button
                   type="button"
                   onClick={() => setActiveTab("prescription")}
-                  className="px-5 py-2.5 bg-[#5f6fff] hover:bg-blue-600 text-white rounded-xl text-sm font-semibold transition flex items-center gap-2 cursor-pointer"
+                  className="px-5 py-2.5 bg-[#5f6fff] hover:bg-[#4d5de6] text-white rounded-xl text-sm font-semibold transition cursor-pointer"
                 >
-                  Tiếp theo: Kê đơn thuốc ➔
+                  Kê đơn thuốc &rarr;
                 </button>
               </div>
             </div>
@@ -596,18 +586,18 @@ const MedicalRecordModal = ({ isOpen, appointment, onClose }) => {
 
           {/* TAB 4: KÊ ĐƠN THUỐC */}
           {activeTab === "prescription" && (
-            <div className="space-y-6">
+            <div className="space-y-5">
               <div>
-                <p className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">
-                  Thêm nhanh các loại thuốc thông dụng:
+                <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">
+                  Thuốc gợi ý nhanh:
                 </p>
-                <div className="flex flex-wrap gap-2">
+                <div className="flex flex-wrap gap-1.5">
                   {COMMON_MEDICINES.map((med, idx) => (
                     <button
                       key={idx}
                       type="button"
                       onClick={() => handleAddPrescriptionRow(med)}
-                      className="text-xs bg-gray-100 hover:bg-indigo-50 hover:text-indigo-700 text-gray-700 px-3 py-1.5 rounded-lg border border-gray-200 transition font-medium cursor-pointer"
+                      className="text-xs bg-gray-50 hover:bg-[#f0f3ff] hover:text-[#5f6fff] hover:border-[#d6e0ff] text-gray-700 px-3 py-1.5 rounded-lg border border-gray-200 transition font-medium cursor-pointer"
                     >
                       + {med.name}
                     </button>
@@ -616,28 +606,28 @@ const MedicalRecordModal = ({ isOpen, appointment, onClose }) => {
               </div>
 
               <div>
-                <div className="flex items-center justify-between mb-3">
+                <div className="flex items-center justify-between mb-2.5">
                   <h3 className="text-sm font-bold text-gray-800">
                     Danh mục thuốc kê đơn ({prescription.length})
                   </h3>
                   <button
                     type="button"
                     onClick={() => handleAddPrescriptionRow()}
-                    className="text-xs font-semibold text-[#5f6fff] hover:underline flex items-center gap-1 cursor-pointer"
+                    className="text-xs font-semibold text-[#5f6fff] hover:underline cursor-pointer"
                   >
-                    + Thêm dòng thuốc mới
+                    + Thêm dòng thuốc
                   </button>
                 </div>
 
-                <div className="space-y-3">
+                <div className="space-y-2.5">
                   {prescription.map((item, index) => (
                     <div
                       key={index}
-                      className="p-4 bg-gray-50 rounded-xl border border-gray-200 space-y-3"
+                      className="p-3.5 bg-gray-50/70 rounded-xl border border-gray-200 space-y-2"
                     >
-                      <div className="grid grid-cols-12 gap-3 items-end">
+                      <div className="grid grid-cols-12 gap-2.5 items-end">
                         <div className="col-span-12 sm:col-span-4">
-                          <label className="block text-xs font-medium text-gray-600 mb-1">
+                          <label className="block text-[11px] text-gray-500 mb-1">
                             {index + 1}. Tên thuốc
                           </label>
                           <input
@@ -650,14 +640,14 @@ const MedicalRecordModal = ({ isOpen, appointment, onClose }) => {
                                 e.target.value
                               )
                             }
-                            placeholder="Tên thuốc (vd: Augmentin)"
-                            className="w-full px-3 py-2 bg-white border border-gray-300 rounded-lg text-sm font-semibold text-gray-800 focus:ring-2 focus:ring-[#5f6fff] outline-none"
+                            placeholder="Tên thuốc"
+                            className="w-full px-3 py-1.5 bg-white border border-gray-200 rounded-lg text-sm font-semibold text-gray-800 focus:border-[#5f6fff] focus:ring-1 focus:ring-[#5f6fff] outline-none"
                           />
                         </div>
 
-                        <div className="col-span-6 sm:col-span-3">
-                          <label className="block text-xs font-medium text-gray-600 mb-1">
-                            Hàm lượng / Liều
+                        <div className="col-span-5 sm:col-span-3">
+                          <label className="block text-[11px] text-gray-500 mb-1">
+                            Liều lượng
                           </label>
                           <input
                             type="text"
@@ -670,12 +660,12 @@ const MedicalRecordModal = ({ isOpen, appointment, onClose }) => {
                               )
                             }
                             placeholder="500mg, 1g..."
-                            className="w-full px-3 py-2 bg-white border border-gray-300 rounded-lg text-sm outline-none"
+                            className="w-full px-3 py-1.5 bg-white border border-gray-200 rounded-lg text-xs outline-none"
                           />
                         </div>
 
                         <div className="col-span-3 sm:col-span-2">
-                          <label className="block text-xs font-medium text-gray-600 mb-1">
+                          <label className="block text-[11px] text-gray-500 mb-1">
                             Số lượng
                           </label>
                           <input
@@ -689,12 +679,12 @@ const MedicalRecordModal = ({ isOpen, appointment, onClose }) => {
                                 Number(e.target.value)
                               )
                             }
-                            className="w-full px-3 py-2 bg-white border border-gray-300 rounded-lg text-sm text-center outline-none"
+                            className="w-full px-3 py-1.5 bg-white border border-gray-200 rounded-lg text-xs text-center outline-none"
                           />
                         </div>
 
                         <div className="col-span-3 sm:col-span-2">
-                          <label className="block text-xs font-medium text-gray-600 mb-1">
+                          <label className="block text-[11px] text-gray-500 mb-1">
                             Đơn vị
                           </label>
                           <select
@@ -706,7 +696,7 @@ const MedicalRecordModal = ({ isOpen, appointment, onClose }) => {
                                 e.target.value
                               )
                             }
-                            className="w-full px-3 py-2 bg-white border border-gray-300 rounded-lg text-xs outline-none"
+                            className="w-full px-2 py-1.5 bg-white border border-gray-200 rounded-lg text-xs outline-none"
                           >
                             <option value="Viên">Viên</option>
                             <option value="Gói">Gói</option>
@@ -718,22 +708,19 @@ const MedicalRecordModal = ({ isOpen, appointment, onClose }) => {
                           </select>
                         </div>
 
-                        <div className="col-span-12 sm:col-span-1 flex justify-end">
+                        <div className="col-span-1 flex justify-end">
                           <button
                             type="button"
                             onClick={() => handleRemovePrescriptionRow(index)}
-                            className="text-red-500 hover:text-red-700 text-xs p-2 rounded hover:bg-red-50 transition cursor-pointer"
-                            title="Xóa dòng thuốc này"
+                            className="text-gray-400 hover:text-rose-600 text-xs p-1.5 transition cursor-pointer"
+                            title="Xóa dòng thuốc"
                           >
-                            🗑️
+                            ✕
                           </button>
                         </div>
                       </div>
 
                       <div>
-                        <label className="block text-xs font-medium text-gray-600 mb-1">
-                          Cách dùng & Hướng dẫn sử dụng:
-                        </label>
                         <input
                           type="text"
                           value={item.usage}
@@ -744,8 +731,8 @@ const MedicalRecordModal = ({ isOpen, appointment, onClose }) => {
                               e.target.value
                             )
                           }
-                          placeholder="vd: Uống sáng 1 viên sau ăn, tối 1 viên sau ăn no"
-                          className="w-full px-3 py-2 bg-white border border-gray-300 rounded-lg text-xs text-gray-700 outline-none"
+                          placeholder="Cách dùng: vd: Uống sáng 1 viên sau ăn, tối 1 viên sau ăn no"
+                          className="w-full px-3 py-1.5 bg-white border border-gray-200 rounded-lg text-xs text-gray-700 outline-none"
                         />
                       </div>
                     </div>
@@ -757,16 +744,16 @@ const MedicalRecordModal = ({ isOpen, appointment, onClose }) => {
                 <button
                   type="button"
                   onClick={() => setActiveTab("diagnosis")}
-                  className="px-4 py-2 border border-gray-300 rounded-xl text-sm font-medium text-gray-700 hover:bg-gray-50"
+                  className="px-4 py-2 border border-gray-200 rounded-xl text-xs font-medium text-gray-600 hover:bg-gray-50"
                 >
-                  ⬅ Quay lại
+                  &larr; Quay lại
                 </button>
                 <button
                   type="button"
                   onClick={() => setActiveTab("advice")}
-                  className="px-5 py-2.5 bg-[#5f6fff] hover:bg-blue-600 text-white rounded-xl text-sm font-semibold transition flex items-center gap-2 cursor-pointer"
+                  className="px-5 py-2.5 bg-[#5f6fff] hover:bg-[#4d5de6] text-white rounded-xl text-sm font-semibold transition cursor-pointer"
                 >
-                  Tiếp theo: Lời dặn & Hoàn tất ➔
+                  Lời dặn & Hoàn tất &rarr;
                 </button>
               </div>
             </div>
@@ -774,67 +761,57 @@ const MedicalRecordModal = ({ isOpen, appointment, onClose }) => {
 
           {/* TAB 5: LỜI DẶN BÁC SĨ & HẸN TÁI KHÁM */}
           {activeTab === "advice" && (
-            <div className="space-y-6">
+            <div className="space-y-5">
               <div>
-                <label className="block text-sm font-bold text-gray-800 mb-2">
-                  Lời dặn của Bác sĩ đối với bệnh nhân:
+                <label className="block text-sm font-semibold text-gray-800 mb-1.5">
+                  Lời dặn của Bác sĩ:
                 </label>
                 <textarea
-                  rows="4"
+                  rows="3"
                   value={advice}
                   onChange={(e) => setAdvice(e.target.value)}
-                  placeholder="Hướng dẫn chế độ ăn uống, sinh hoạt, tập luyện, các dấu hiệu cảnh báo cần tái khám ngay..."
-                  className="w-full p-4 border border-gray-300 rounded-xl text-sm focus:ring-2 focus:ring-[#5f6fff] outline-none leading-relaxed"
+                  placeholder="Hướng dẫn chế độ ăn uống, nghỉ ngơi, các dấu hiệu cần tái khám ngay..."
+                  className="w-full p-3.5 border border-gray-200 rounded-xl text-sm focus:border-[#5f6fff] focus:ring-1 focus:ring-[#5f6fff] outline-none leading-relaxed"
                 ></textarea>
               </div>
 
               <div>
-                <label className="block text-sm font-bold text-gray-800 mb-2">
-                  Hẹn ngày tái khám (Nếu cần):
+                <label className="block text-sm font-semibold text-gray-800 mb-1.5">
+                  Hẹn ngày tái khám (Nếu có):
                 </label>
                 <input
                   type="text"
                   value={followUpDate}
                   onChange={(e) => setFollowUpDate(e.target.value)}
-                  placeholder="Ví dụ: Tái khám sau 5 ngày (09/11/2026) hoặc khi có dấu hiệu sốt cao lại"
-                  className="w-full px-4 py-2.5 border border-gray-300 rounded-xl text-sm focus:ring-2 focus:ring-[#5f6fff] outline-none"
+                  placeholder="Ví dụ: Tái khám sau 5 ngày (09/11/2026)"
+                  className="w-full px-3.5 py-2.5 border border-gray-200 rounded-xl text-sm focus:border-[#5f6fff] focus:ring-1 focus:ring-[#5f6fff] outline-none"
                 />
-              </div>
-
-              <div className="bg-emerald-50 border border-emerald-200 rounded-xl p-4 flex items-start gap-3">
-                <span className="text-xl">✅</span>
-                <div className="text-xs text-emerald-800">
-                  <p className="font-bold">Sẵn sàng hoàn tất ca khám!</p>
-                  <p className="mt-0.5 text-emerald-700">
-                    Khi nhấn <strong>"Lưu Bệnh Án & Hoàn Tất Ca Khám"</strong>, ca khám sẽ được đánh dấu hoàn thành và bệnh nhân có thể tra cứu kết quả xét nghiệm, chẩn đoán và đơn thuốc trực tiếp từ ứng dụng.
-                  </p>
-                </div>
               </div>
 
               <div className="flex justify-between items-center pt-2">
                 <button
                   type="button"
                   onClick={() => setActiveTab("prescription")}
-                  className="px-4 py-2 border border-gray-300 rounded-xl text-sm font-medium text-gray-700 hover:bg-gray-50"
+                  className="px-4 py-2 border border-gray-200 rounded-xl text-xs font-medium text-gray-600 hover:bg-gray-50"
                 >
-                  ⬅ Quay lại
+                  &larr; Quay lại
                 </button>
               </div>
             </div>
           )}
         </div>
 
-        {/* Modal Footer */}
+        {/* Modal Footer - Solid consistent buttons */}
         <div className="p-4 bg-gray-50 border-t border-gray-200 flex flex-col sm:flex-row items-center justify-between gap-3">
-          <div className="text-xs text-gray-500">
-            Hồ sơ được cập nhật bởi Bác sĩ điều trị.
-          </div>
-          <div className="flex items-center gap-3 w-full sm:w-auto">
+          <span className="text-xs text-gray-400">
+            Hồ sơ lưu trực tiếp vào cơ sở dữ liệu phòng khám.
+          </span>
+          <div className="flex items-center gap-2.5 w-full sm:w-auto">
             <button
               type="button"
               onClick={onClose}
               disabled={loading}
-              className="flex-1 sm:flex-none px-4 py-2.5 border border-gray-300 text-gray-700 hover:bg-gray-100 rounded-xl text-sm font-medium transition cursor-pointer"
+              className="flex-1 sm:flex-none px-4 py-2 border border-gray-200 text-gray-600 hover:bg-gray-100 rounded-xl text-xs font-medium transition cursor-pointer"
             >
               Đóng
             </button>
@@ -842,7 +819,7 @@ const MedicalRecordModal = ({ isOpen, appointment, onClose }) => {
               type="button"
               onClick={() => handleSave(false)}
               disabled={loading}
-              className="flex-1 sm:flex-none px-4 py-2.5 border border-[#5f6fff] text-[#5f6fff] hover:bg-blue-50 rounded-xl text-sm font-semibold transition cursor-pointer"
+              className="flex-1 sm:flex-none px-4 py-2 border border-[#5f6fff] text-[#5f6fff] hover:bg-[#f0f3ff] rounded-xl text-xs font-semibold transition cursor-pointer"
             >
               Lưu nháp
             </button>
@@ -850,14 +827,12 @@ const MedicalRecordModal = ({ isOpen, appointment, onClose }) => {
               type="button"
               onClick={() => handleSave(true)}
               disabled={loading}
-              className="flex-1 sm:flex-none px-6 py-2.5 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white rounded-xl text-sm font-bold shadow-md hover:shadow-lg transition flex items-center justify-center gap-2 cursor-pointer"
+              className="flex-1 sm:flex-none px-5 py-2 bg-[#5f6fff] hover:bg-[#4d5de6] text-white rounded-xl text-xs font-bold transition shadow-xs flex items-center justify-center gap-1.5 cursor-pointer"
             >
               {loading ? (
-                <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
               ) : (
-                <>
-                  <span>✔</span> Lưu Bệnh Án & Hoàn Tất
-                </>
+                "Lưu Bệnh Án & Hoàn Tất"
               )}
             </button>
           </div>
